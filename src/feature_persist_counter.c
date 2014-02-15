@@ -61,34 +61,24 @@ static void stop_counting() {
   time_elapsed = 0;
 }
 
-static float calculate_ebac(const float body_water,
-                            const float metabolism,
-                            const float weight_kgs,
-                            const float standard_drinks,
-                            const double drinking_secs,
-						    float* ebac) {
+static float get_ebac(const float body_water,
+                      const float metabolism,
+                      const float weight_kgs,
+                      const float standard_drinks,
+                      const double drinking_secs) {
   if (standard_drinks <= 0) { return 0.0; }
   if (drinking_secs <= 0) { return 0.0; }
   // Pebble y u no have maximum?!
-  *ebac = ((0.806 * standard_drinks * 1.2) / (body_water * weight_kgs)) - (metabolism * (drinking_secs / SECONDS_IN_HOUR));
-  if (*ebac <= 0.0) {
-    *ebac = 0.0;
-	return false;
-  }
-  return true;
-}
-
-static float get_ebac() {
-  float ebac = 0.0;
-  if (!calculate_ebac(BODY_WATER, METABOLISM, WEIGHT_KGS, num_drinks, time_elapsed, &ebac)) {
-	ebac = 0.0;
+  float ebac = ((0.806 * standard_drinks * 1.2) / (body_water * weight_kgs)) - (metabolism * (drinking_secs / SECONDS_IN_HOUR));
+  if (ebac <= 0.0) {
+    return 0.0;
 	stop_counting();
   }
   return ebac;
 }
 
 static void update_text() {
-  const float ebac = get_ebac();
+  const float ebac = get_ebac(BODY_WATER, METABOLISM, WEIGHT_KGS, num_drinks, time_elapsed);
   
   static char ebac_str[10];
   floatToString(ebac_str, sizeof(ebac_str), ebac);
