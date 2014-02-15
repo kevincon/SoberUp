@@ -71,8 +71,8 @@ static float get_ebac(const float body_water,
   // Pebble y u no have maximum?!
   float ebac = ((0.806 * standard_drinks * 1.2) / (body_water * weight_kgs)) - (metabolism * (drinking_secs / SECONDS_IN_HOUR));
   if (ebac <= 0.0) {
-    return 0.0;
 	stop_counting();
+    return 0.0;
   }
   return ebac;
 }
