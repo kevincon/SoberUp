@@ -1,13 +1,18 @@
-// Kevin was here
-// Matt was also here
-// Evan was TROLOLOLOLOLOL
+// WHY IS ERRYTHING STATIC?!?!?
 #include "pebble.h"
+
+// These #defines should be replaced by inputs from the js app.
+#define BODY_WATER 0.58
+#define METABOLISM 0.017
+#define WEIGHT_KGS 72.0
 
 // This is a custom defined key for saving our count field
 #define NUM_DRINKS_PKEY 1
+#define START_TIME_PKEY 2
 
 // You can define defaults for values in persistent storage
 #define NUM_DRINKS_DEFAULT 0
+#define START_TIME_DEFAULT 0
 
 static Window *window;
 
@@ -22,25 +27,66 @@ static TextLayer *label_text_layer;
 
 // We'll save the count in memory from persistent storage
 static int num_drinks = NUM_DRINKS_DEFAULT;
+static time_t start_time = START_TIME_DEFAULT;
+static uint32_t time_elapsed = 0;
+
+// This is from http://forums.getpebble.com/discussion/8280/displaying-the-value-of-a-floating-point
+// NOT OUR CODE LOLOLOLOLOL
+static char* floatToString(char* buffer, int bufferSize, double number)
+{
+	char decimalBuffer[7];
+
+	snprintf(buffer, bufferSize, "%d", (int)number);
+	strcat(buffer, ".");
+
+	snprintf(decimalBuffer, 7, "%04d", (int)((double)(number - (int)number) * (double)10000));
+	strcat(buffer, decimalBuffer);
+
+	return buffer;
+}
+
+static float getEBAC(const float body_water,
+                     const float metabolism,
+                     const float weight_kgs,
+                     const float standard_drinks,
+                     const double drinking_secs) {
+  if (standard_drinks <= 0) { return 0.0; }
+  if (drinking_secs <= 0) { return 0.0; }
+  return ((0.806 * standard_drinks * 1.2) / (body_water * weight_kgs)) - (metabolism * (drinking_secs / 3600.0));
+}
 
 static void update_text() {
+  static char ebac[10];
+  floatToString(ebac, sizeof(ebac), getEBAC(BODY_WATER, METABOLISM, WEIGHT_KGS, num_drinks, time_elapsed));
   static char body_text[50];
-  snprintf(body_text, sizeof(body_text), "%u Bottles", num_drinks);
+  snprintf(body_text, sizeof(body_text), "%s EBAC", ebac);
+  
   text_layer_set_text(body_text_layer, body_text);
 }
 
+static void timer_handler(struct tm *tick_time, TimeUnits units_changed) {
+  if (start_time > 0) {
+    uint32_t timediff = (uint32_t)(time(NULL) - start_time);
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "Elapsed time: %lu", timediff);
+	time_elapsed = timediff;
+  }
+  update_text();
+}
+
 static void increment_click_handler(ClickRecognizerRef recognizer, void *context) {
-  num_drinks++;
+  if (num_drinks++ == 0) {
+    start_time = time(NULL);
+  }
   update_text();
 }
 
 static void decrement_click_handler(ClickRecognizerRef recognizer, void *context) {
-  if (num_drinks <= 0) {
-    // Keep the counter at zero
-    return;
+  if (--num_drinks <= 0) {
+	num_drinks = 0;
+	start_time = 0;
+	time_elapsed = 0;
   }
-
-  num_drinks--;
+	
   update_text();
 }
 
@@ -100,7 +146,14 @@ static void init(void) {
   });
 
   // Get the count from persistent storage for use if it exists, otherwise use the default
-  num_drinks = persist_exists(NUM_DRINKS_PKEY) ? persist_read_int(NUM_DRINKS_PKEY) : NUM_DRINKS_DEFAULT;
+  // TODO(ebensh): Uncomment this.
+  //num_drinks = persist_exists(NUM_DRINKS_PKEY) ? persist_read_int(NUM_DRINKS_PKEY) : NUM_DRINKS_DEFAULT;
+  //start_time = persist_exists(START_TIME_PKEY) ? persist_read_int(START_TIME_PKEY) : START_TIME_DEFAULT;
+  num_drinks = 0;
+  start_time = 0;
+  time_elapsed = 0;
+
+  tick_timer_service_subscribe(SECOND_UNIT, timer_handler);
 
   window_stack_push(window, true /* Animated */);
 }
@@ -108,6 +161,7 @@ static void init(void) {
 static void deinit(void) {
   // Save the count into persistent storage on app exit
   persist_write_int(NUM_DRINKS_PKEY, num_drinks);
+  persist_write_int(START_TIME_PKEY, start_time);
 
   window_destroy(window);
 
