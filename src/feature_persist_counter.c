@@ -1,5 +1,11 @@
-// WHY IS ERRYTHING STATIC?!?!?
 #include "pebble.h"
+	
+#define DEBUG
+#ifdef DEBUG
+#define SECONDS_IN_HOUR 20.0
+#else
+#define SECONDS_IN_HOUR 3600.0
+#endif
 
 // These #defines should be replaced by inputs from the js app.
 #define BODY_WATER 0.58
@@ -10,9 +16,9 @@
 #define NUM_DRINKS_PKEY 1
 #define START_TIME_PKEY 2
 
-// You can define defaults for values in persistent storage
 #define NUM_DRINKS_DEFAULT 0
 #define START_TIME_DEFAULT 0
+#define TIME_ELAPSED_DEFAULT 0
 
 static Window *window;
 
@@ -28,12 +34,11 @@ static TextLayer *label_text_layer;
 // We'll save the count in memory from persistent storage
 static int num_drinks = NUM_DRINKS_DEFAULT;
 static time_t start_time = START_TIME_DEFAULT;
-static uint32_t time_elapsed = 0;
+static uint32_t time_elapsed = TIME_ELAPSED_DEFAULT;
 
 // This is from http://forums.getpebble.com/discussion/8280/displaying-the-value-of-a-floating-point
-// NOT OUR CODE LOLOLOLOLOL
-static char* floatToString(char* buffer, int bufferSize, double number)
-{
+// because Pebble doesn't support %f in snprintf.
+static char* floatToString(char* buffer, int bufferSize, double number) {
 	char decimalBuffer[7];
 
 	snprintf(buffer, bufferSize, "%d", (int)number);
@@ -45,21 +50,50 @@ static char* floatToString(char* buffer, int bufferSize, double number)
 	return buffer;
 }
 
-static float getEBAC(const float body_water,
-                     const float metabolism,
-                     const float weight_kgs,
-                     const float standard_drinks,
-                     const double drinking_secs) {
+static void start_counting() {
+  time_elapsed = 1;
+  start_time = time(NULL);
+}
+
+static void stop_counting() {
+  num_drinks = 0;
+  start_time = 0;
+  time_elapsed = 0;
+}
+
+static float calculate_ebac(const float body_water,
+                            const float metabolism,
+                            const float weight_kgs,
+                            const float standard_drinks,
+                            const double drinking_secs,
+						    float* ebac) {
   if (standard_drinks <= 0) { return 0.0; }
   if (drinking_secs <= 0) { return 0.0; }
-  return ((0.806 * standard_drinks * 1.2) / (body_water * weight_kgs)) - (metabolism * (drinking_secs / 3600.0));
+  // Pebble y u no have maximum?!
+  *ebac = ((0.806 * standard_drinks * 1.2) / (body_water * weight_kgs)) - (metabolism * (drinking_secs / SECONDS_IN_HOUR));
+  if (*ebac <= 0.0) {
+    *ebac = 0.0;
+	return false;
+  }
+  return true;
+}
+
+static float get_ebac() {
+  float ebac = 0.0;
+  if (!calculate_ebac(BODY_WATER, METABOLISM, WEIGHT_KGS, num_drinks, time_elapsed, &ebac)) {
+	ebac = 0.0;
+	stop_counting();
+  }
+  return ebac;
 }
 
 static void update_text() {
-  static char ebac[10];
-  floatToString(ebac, sizeof(ebac), getEBAC(BODY_WATER, METABOLISM, WEIGHT_KGS, num_drinks, time_elapsed));
+  const float ebac = get_ebac();
+  
+  static char ebac_str[10];
+  floatToString(ebac_str, sizeof(ebac_str), ebac);
   static char body_text[50];
-  snprintf(body_text, sizeof(body_text), "%s EBAC", ebac);
+  snprintf(body_text, sizeof(body_text), "%s EBAC", ebac_str);
   
   text_layer_set_text(body_text_layer, body_text);
 }
@@ -75,18 +109,15 @@ static void timer_handler(struct tm *tick_time, TimeUnits units_changed) {
 
 static void increment_click_handler(ClickRecognizerRef recognizer, void *context) {
   if (num_drinks++ == 0) {
-    start_time = time(NULL);
+    start_counting();
   }
   update_text();
 }
 
 static void decrement_click_handler(ClickRecognizerRef recognizer, void *context) {
   if (--num_drinks <= 0) {
-	num_drinks = 0;
-	start_time = 0;
-	time_elapsed = 0;
+	stop_counting();
   }
-	
   update_text();
 }
 
@@ -110,7 +141,7 @@ static void window_load(Window *me) {
   header_text_layer = text_layer_create(GRect(4, 0, width, 60));
   text_layer_set_font(header_text_layer, fonts_get_system_font(FONT_KEY_GOTHIC_24));
   text_layer_set_background_color(header_text_layer, GColorClear);
-  text_layer_set_text(header_text_layer, "Drink Counter");
+  text_layer_set_text(header_text_layer, "EBAC Calculator");
   layer_add_child(layer, text_layer_get_layer(header_text_layer));
 
   body_text_layer = text_layer_create(GRect(4, 44, width, 60));
@@ -121,7 +152,7 @@ static void window_load(Window *me) {
   label_text_layer = text_layer_create(GRect(4, 44 + 28, width, 60));
   text_layer_set_font(label_text_layer, fonts_get_system_font(FONT_KEY_GOTHIC_18));
   text_layer_set_background_color(label_text_layer, GColorClear);
-  text_layer_set_text(label_text_layer, "of drinks on the wall");
+  text_layer_set_text(label_text_layer, "* Estimate *");
   layer_add_child(layer, text_layer_get_layer(label_text_layer));
 
   update_text();
@@ -144,18 +175,18 @@ static void init(void) {
     .load = window_load,
     .unload = window_unload,
   });
-
-  // Get the count from persistent storage for use if it exists, otherwise use the default
-  // TODO(ebensh): Uncomment this.
-  //num_drinks = persist_exists(NUM_DRINKS_PKEY) ? persist_read_int(NUM_DRINKS_PKEY) : NUM_DRINKS_DEFAULT;
-  //start_time = persist_exists(START_TIME_PKEY) ? persist_read_int(START_TIME_PKEY) : START_TIME_DEFAULT;
-  num_drinks = 0;
-  start_time = 0;
-  time_elapsed = 0;
-
+	
   tick_timer_service_subscribe(SECOND_UNIT, timer_handler);
 
   window_stack_push(window, true /* Animated */);
+
+  // Get the count from persistent storage for use if it exists, otherwise use the default
+  // TODO(ebensh): Uncomment this.
+  stop_counting();  // Reset our counters to a start state.
+  num_drinks = persist_exists(NUM_DRINKS_PKEY) ? persist_read_int(NUM_DRINKS_PKEY) : NUM_DRINKS_DEFAULT;
+  start_time = persist_exists(START_TIME_PKEY) ? persist_read_int(START_TIME_PKEY) : START_TIME_DEFAULT;
+  time_t raw_time = time(NULL);
+  timer_handler(gmtime(&raw_time), SECOND_UNIT);
 }
 
 static void deinit(void) {
