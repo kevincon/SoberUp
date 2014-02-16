@@ -1,6 +1,6 @@
 #include "pebble.h"
 	
-#define DEBUG
+//#define DEBUG
 #ifdef DEBUG
 #define SECONDS_IN_HOUR 20.0
 #else
