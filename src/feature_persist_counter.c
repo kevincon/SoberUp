@@ -196,20 +196,26 @@ static void window_unload(Window *window) {
   layer_destroy(bottom_bar);
 }
 
-/*
 static void in_received_handler(DictionaryIterator *iter, void *context) {
   Tuple *user_data_gender_tuple = dict_find(iter, USER_DATA_KEY_GENDER);
   Tuple *user_data_weight_tuple = dict_find(iter, USER_DATA_KEY_WEIGHT);
 
   if (user_data_gender_tuple) {
-	persist_write_int(USER_GENDER_PKEY, num_drinks);
-    todo_list_append(user_data_gender_tuple->value->uint8);
+	const uint8_t gender = user_data_gender_tuple->value->uint8;
+	if (gender == 0) {
+	  // Female
+	  ebac_params.body_water = 0.49;
+	  ebac_params.metabolism = 0.017;
+	} else if (gender == 1) {
+	  // Male
+	  ebac_params.body_water = 0.58;
+	  ebac_params.metabolism = 0.015;
+	}
   }
   if (user_data_weight_tuple) {
 	// Convert user's weight to kg before writing.
 	const uint16_t weight_lbs = user_data_weight_tuple->value->uint16;
-	const uint16_t weight_kgs = weight_lbs * 2.2;
-	persist_write_int(USER_WEIGHT_PKEY, weight_kgs);
+	ebac_params.weight_kgs = weight_lbs * 2.2;
   }
 }
 
@@ -219,7 +225,6 @@ static void app_message_init(void) {
   // Init buffers
   app_message_open(64, 64);
 }
-*/
 
 static void init(void) {
   action_icon_plus = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_ACTION_ICON_PLUS);
@@ -255,7 +260,7 @@ static void init(void) {
     tick_timer_service_subscribe(SECOND_UNIT, timer_handler);
   }
 
-  //app_message_init();
+  app_message_init();
 }
 
 static void deinit(void) {
