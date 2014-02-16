@@ -54,6 +54,7 @@ static ActionBarLayer *action_bar;
 static TextLayer *header_text_layer;
 static TextLayer *body_text_layer;
 static TextLayer *label_text_layer;
+static TextLayer *countdown_text_layer;
 
 static Layer *bottom_bar;
 
@@ -65,6 +66,7 @@ static EBACParams ebac_params;
 static uint32_t time_elapsed = 0;
 
 static char ebac_str[10];
+static char countdown_text[20];
 static char body_text[50];
 
 static void timer_handler(struct tm *tick_time, TimeUnits units_changed);
@@ -101,6 +103,7 @@ static float get_ebac(const float body_water,
                       const float standard_drinks,
                       const double drinking_secs) {
   // Pebble y u no have maximum?!
+  // TODO remove ebac_params
   float ebac = ((0.806 * standard_drinks * 1.2) / (ebac_params.body_water * ebac_params.weight_kgs)) -
 	  (ebac_params.metabolism * (drinking_secs / SECONDS_IN_HOUR));
   if (ebac <= 0.0) {
@@ -110,10 +113,28 @@ static float get_ebac(const float body_water,
   return ebac;
 }
 
+static float get_dp(const float standard_drinks) {
+  float dp = (((0.806 * standard_drinks * 1.2) / (ebac_params.body_water * ebac_params.weight_kgs)) -
+	  0.08) / (ebac_params.metabolism);
+  if (dp <= 0.0) {
+    return 0.0;
+  }
+  return dp;
+}
+
 static void update_text() {
   const float ebac = get_ebac(ebac_params.body_water, ebac_params.metabolism, ebac_params.weight_kgs, drinking_state.num_drinks, time_elapsed);
   floatToString(ebac_str, sizeof(ebac_str), ebac);
   snprintf(body_text, sizeof(body_text), "%s EBAC", ebac_str);
+	
+  const float dp = get_dp(drinking_state.num_drinks);
+  if (dp == 0.0) {
+	snprintf(countdown_text, sizeof(countdown_text), "OK TO DRIVE");
+  } else {
+	int dp_h = (int) dp;
+    snprintf(countdown_text, sizeof(countdown_text), "%02d H %02d M", dp_h, (int)((dp - dp_h)*60));
+  }
+  
 
   #ifdef DEBUG
   char body_water_str[10];
@@ -129,6 +150,7 @@ static void update_text() {
   #endif
 
   text_layer_set_text(body_text_layer, body_text);
+  text_layer_set_text(countdown_text_layer, countdown_text);
 }
 
 static void timer_handler(struct tm *tick_time, TimeUnits units_changed) {
@@ -172,7 +194,7 @@ static void window_load(Window *me) {
   header_text_layer = text_layer_create(GRect(4, 0, width, 60));
   text_layer_set_font(header_text_layer, fonts_get_system_font(FONT_KEY_GOTHIC_24));
   text_layer_set_background_color(header_text_layer, GColorClear);
-  text_layer_set_text(header_text_layer, "EBAC Calculator");
+  text_layer_set_text(header_text_layer, "SoberUp");
   layer_add_child(layer, text_layer_get_layer(header_text_layer));
 
   body_text_layer = text_layer_create(GRect(4, 44, width, 60));
@@ -183,26 +205,34 @@ static void window_load(Window *me) {
   label_text_layer = text_layer_create(GRect(4, 44 + 28, width, 60));
   text_layer_set_font(label_text_layer, fonts_get_system_font(FONT_KEY_GOTHIC_18));
   text_layer_set_background_color(label_text_layer, GColorClear);
-  text_layer_set_text(label_text_layer, "* Estimate *");
+  text_layer_set_text(label_text_layer, "* Estimated BAC *");
   layer_add_child(layer, text_layer_get_layer(label_text_layer));
-	
-  update_text();
 	
   // draw bottom bar (car)
   GRect bounds = layer_get_bounds(layer);
-  bottom_bar = layer_create(GRect(0, bounds.size.h - 26, bounds.size.w, bounds.size.h));
+  bottom_bar = layer_create(GRect(0, bounds.size.h - 22, bounds.size.w - ACTION_BAR_WIDTH - 4, bounds.size.h));
   layer_add_child(layer, bottom_bar);
 							
   car_layer = bitmap_layer_create(GRect(4, 0, 26, 22));
   bitmap_layer_set_bitmap(car_layer, action_icon_car);
   bitmap_layer_set_alignment(car_layer, GAlignCenter);
   layer_add_child(bottom_bar, bitmap_layer_get_layer(car_layer));
+	
+  countdown_text_layer = text_layer_create(GRect(30, 0, bounds.size.w - ACTION_BAR_WIDTH - 30 - 4, 22));
+  text_layer_set_font(countdown_text_layer, fonts_get_system_font(FONT_KEY_GOTHIC_18));
+  text_layer_set_background_color(countdown_text_layer, GColorClear);
+  text_layer_set_text(countdown_text_layer, "OK TO DRIVE");
+  text_layer_set_text_alignment(countdown_text_layer, GTextAlignmentCenter);
+  layer_add_child(bottom_bar, text_layer_get_layer(countdown_text_layer));	
+	
+  update_text();
 }
 
 static void window_unload(Window *window) {
   text_layer_destroy(header_text_layer);
   text_layer_destroy(body_text_layer);
   text_layer_destroy(label_text_layer);
+  text_layer_destroy(countdown_text_layer);
 
   action_bar_layer_destroy(action_bar);
   bitmap_layer_destroy(car_layer);
