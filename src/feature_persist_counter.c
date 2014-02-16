@@ -1,6 +1,6 @@
 #include "pebble.h"
 	
-//#define DEBUG
+#define DEBUG
 #ifdef DEBUG
 #define SECONDS_IN_HOUR 20.0
 #else
@@ -113,9 +113,8 @@ static float get_ebac(const float body_water,
   return ebac;
 }
 
-static float get_dp(const float standard_drinks) {
-  float dp = (((0.806 * standard_drinks * 1.2) / (ebac_params.body_water * ebac_params.weight_kgs)) -
-	  0.08) / (ebac_params.metabolism);
+static float get_dp(const float current_ebac) {
+  float dp = (current_ebac - 0.08) / ebac_params.metabolism;
   if (dp <= 0.0) {
     return 0.0;
   }
@@ -127,7 +126,7 @@ static void update_text() {
   floatToString(ebac_str, sizeof(ebac_str), ebac);
   snprintf(body_text, sizeof(body_text), "%s EBAC", ebac_str);
 	
-  const float dp = get_dp(drinking_state.num_drinks);
+  const float dp = get_dp(ebac);
   if (dp == 0.0) {
 	snprintf(countdown_text, sizeof(countdown_text), "OK TO DRIVE");
   } else {
