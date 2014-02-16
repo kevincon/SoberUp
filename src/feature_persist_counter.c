@@ -3,7 +3,7 @@
 	
 #define DEBUG
 #ifdef DEBUG
-#define SECONDS_IN_HOUR 20.0
+#define SECONDS_IN_HOUR 60.0
 #else
 #define SECONDS_IN_HOUR 3600.0
 #endif
