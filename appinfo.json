@@ -16,8 +16,8 @@
         "media": [
             {
                 "type": "png",
-                "name": "IMAGE_ACTION_ICON_CAR",
-                "file": "images/glyphicons_005_car.png"
+                "name": "IMAGE_ACTION_ICON_MINUS",
+                "file": "images/action_icon_minus.png"
             },
             {
                 "type": "png",
@@ -26,8 +26,8 @@
             },
             {
                 "type": "png",
-                "name": "IMAGE_ACTION_ICON_MINUS",
-                "file": "images/action_icon_minus.png"
+                "name": "IMAGE_ACTION_ICON_CAR",
+                "file": "images/glyphicons_005_car.png"
             }
         ]
     }

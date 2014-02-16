@@ -7,18 +7,41 @@
 #define SECONDS_IN_HOUR 3600.0
 #endif
 
-// These #defines should be replaced by inputs from the js app.
-#define BODY_WATER 0.58
-#define METABOLISM 0.017
-#define WEIGHT_KGS 72.0
+// Keys for loading from appmessage
+enum {
+  USER_DATA_KEY_GENDER = 0x0,
+  USER_DATA_KEY_WEIGHT = 0x1,
+};
 
-// This is a custom defined key for saving our count field
-#define NUM_DRINKS_PKEY 1
-#define START_TIME_PKEY 2
+// This is a custom defined key for saving our state structs
+#define DRINKING_STATE_PKEY 3
+#define EBAC_PARAMS_PKEY 4
 
-#define NUM_DRINKS_DEFAULT 0
-#define START_TIME_DEFAULT 0
-#define TIME_ELAPSED_DEFAULT 0
+typedef struct DrinkingState {
+  uint32_t num_drinks;
+  time_t start_time;
+} DrinkingState;
+
+typedef struct EBACParams {
+  float body_water;
+  float metabolism;
+  float weight_kgs;
+} EBACParams;
+
+DrinkingState get_default_drinking_state() {
+  DrinkingState state;
+  state.num_drinks = 0;
+  state.start_time = 0;
+  return state;
+}
+
+EBACParams get_default_ebac_params() {
+  EBACParams params;
+  params.body_water = 0.58;
+  params.metabolism = 0.017;
+  params.weight_kgs = 72.0;
+  return params;
+}
 
 static Window *window;
 
@@ -37,9 +60,9 @@ static Layer *bottom_bar;
 static BitmapLayer *car_layer;
 
 // We'll save the count in memory from persistent storage
-static int num_drinks = NUM_DRINKS_DEFAULT;
-static time_t start_time = START_TIME_DEFAULT;
-static uint32_t time_elapsed = TIME_ELAPSED_DEFAULT;
+static DrinkingState drinking_state;
+static EBACParams ebac_params;
+static uint32_t time_elapsed = 0;
 
 static char ebac_str[10];
 static char body_text[50];
@@ -62,26 +85,24 @@ static char* floatToString(char* buffer, int bufferSize, double number) {
 
 static void start_counting() {
   time_elapsed = 1;
-  start_time = time(NULL);
+  drinking_state.start_time = time(NULL);
   tick_timer_service_subscribe(SECOND_UNIT, timer_handler);
 }
 
 static void stop_counting() {
   tick_timer_service_unsubscribe();
-  num_drinks = 0;
-  start_time = 0;
+  drinking_state = get_default_drinking_state();
   time_elapsed = 0;
 }
 
 static float get_ebac(const float body_water,
-                      const float metabolism,
-                      const float weight_kgs,
+					  const float metabolism,
+					  const float weight_kgs,
                       const float standard_drinks,
                       const double drinking_secs) {
-  if (standard_drinks <= 0) { return 0.0; }
-  if (drinking_secs <= 0) { return 0.0; }
   // Pebble y u no have maximum?!
-  float ebac = ((0.806 * standard_drinks * 1.2) / (body_water * weight_kgs)) - (metabolism * (drinking_secs / SECONDS_IN_HOUR));
+  float ebac = ((0.806 * standard_drinks * 1.2) / (ebac_params.body_water * ebac_params.weight_kgs)) -
+	  (ebac_params.metabolism * (drinking_secs / SECONDS_IN_HOUR));
   if (ebac <= 0.0) {
 	stop_counting();
     return 0.0;
@@ -90,7 +111,7 @@ static float get_ebac(const float body_water,
 }
 
 static void update_text() {
-  const float ebac = get_ebac(BODY_WATER, METABOLISM, WEIGHT_KGS, num_drinks, time_elapsed);
+  const float ebac = get_ebac(ebac_params.body_water, ebac_params.metabolism, ebac_params.weight_kgs, drinking_state.num_drinks, time_elapsed);
   floatToString(ebac_str, sizeof(ebac_str), ebac);
   snprintf(body_text, sizeof(body_text), "%s EBAC", ebac_str);
   
@@ -98,24 +119,21 @@ static void update_text() {
 }
 
 static void timer_handler(struct tm *tick_time, TimeUnits units_changed) {
-  if (start_time > 0) {
-    time_elapsed = (uint32_t)(time(NULL) - start_time);
-	  //uint32_t timediff = (uint32_t)(time(NULL) - start_time);
-    //APP_LOG(APP_LOG_LEVEL_DEBUG, "Elapsed time: %lu", timediff);
-	//time_elapsed = timediff;
+  if (drinking_state.start_time > 0) {
+    time_elapsed = (uint32_t)(time(NULL) - drinking_state.start_time);
   }
   update_text();
 }
 
 static void increment_click_handler(ClickRecognizerRef recognizer, void *context) {
-  if (num_drinks++ == 0) {
+  if (drinking_state.num_drinks++ == 0) {
     start_counting();
   }
   update_text();
 }
 
 static void decrement_click_handler(ClickRecognizerRef recognizer, void *context) {
-  if (--num_drinks <= 0) {
+  if (--drinking_state.num_drinks <= 0) {
 	stop_counting();
   }
   update_text();
@@ -178,6 +196,31 @@ static void window_unload(Window *window) {
   layer_destroy(bottom_bar);
 }
 
+/*
+static void in_received_handler(DictionaryIterator *iter, void *context) {
+  Tuple *user_data_gender_tuple = dict_find(iter, USER_DATA_KEY_GENDER);
+  Tuple *user_data_weight_tuple = dict_find(iter, USER_DATA_KEY_WEIGHT);
+
+  if (user_data_gender_tuple) {
+	persist_write_int(USER_GENDER_PKEY, num_drinks);
+    todo_list_append(user_data_gender_tuple->value->uint8);
+  }
+  if (user_data_weight_tuple) {
+	// Convert user's weight to kg before writing.
+	const uint16_t weight_lbs = user_data_weight_tuple->value->uint16;
+	const uint16_t weight_kgs = weight_lbs * 2.2;
+	persist_write_int(USER_WEIGHT_PKEY, weight_kgs);
+  }
+}
+
+static void app_message_init(void) {
+  // Register message handlers
+  app_message_register_inbox_received(in_received_handler);
+  // Init buffers
+  app_message_open(64, 64);
+}
+*/
+
 static void init(void) {
   action_icon_plus = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_ACTION_ICON_PLUS);
   action_icon_minus = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_ACTION_ICON_MINUS);
@@ -189,23 +232,36 @@ static void init(void) {
     .unload = window_unload,
   });
 	
-  //tick_timer_service_subscribe(SECOND_UNIT, timer_handler);
-
   window_stack_push(window, true /* Animated */);
 
   // Get the count from persistent storage for use if it exists, otherwise use the default
-  // TODO(ebensh): Uncomment this.
-  stop_counting();  // Reset our counters to a start state.
-  num_drinks = persist_exists(NUM_DRINKS_PKEY) ? persist_read_int(NUM_DRINKS_PKEY) : NUM_DRINKS_DEFAULT;
-  start_time = persist_exists(START_TIME_PKEY) ? persist_read_int(START_TIME_PKEY) : START_TIME_DEFAULT;
+  stop_counting();  // Reset our drinking counters to their default state.
+  if (persist_exists(DRINKING_STATE_PKEY)) {
+    persist_read_data(DRINKING_STATE_PKEY, &drinking_state, sizeof(DrinkingState));
+  } else {
+	drinking_state = get_default_drinking_state();
+  }
+  if (drinking_state.num_drinks <= 0) { stop_counting(); }
+  
+  if (persist_exists(EBAC_PARAMS_PKEY)) {
+    persist_read_data(EBAC_PARAMS_PKEY, &ebac_params, sizeof(EBACParams));
+  } else {
+	ebac_params = get_default_ebac_params();
+  }
   time_t raw_time = time(NULL);
   timer_handler(gmtime(&raw_time), SECOND_UNIT);
+
+  if (drinking_state.num_drinks > 0 && drinking_state.start_time > 0) {
+    tick_timer_service_subscribe(SECOND_UNIT, timer_handler);
+  }
+
+  //app_message_init();
 }
 
 static void deinit(void) {
-  // Save the count into persistent storage on app exit
-  persist_write_int(NUM_DRINKS_PKEY, num_drinks);
-  persist_write_int(START_TIME_PKEY, start_time);
+  // Save data into persistent storage on exit.
+  persist_write_data(DRINKING_STATE_PKEY, &drinking_state, sizeof(DrinkingState));
+  persist_write_data(EBAC_PARAMS_PKEY, &ebac_params, sizeof(EBACParams));
 
   window_destroy(window);
 
