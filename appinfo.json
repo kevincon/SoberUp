@@ -5,7 +5,7 @@
     "longName": "Drink Counter",
     "versionCode": 2,
     "capabilities": [
-        ""
+        "configurable"
     ],
     "shortName": "Drink Counter",
     "companyName": "Pebble Technology",
