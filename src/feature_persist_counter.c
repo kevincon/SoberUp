@@ -18,7 +18,7 @@ enum {
 #define EBAC_PARAMS_PKEY 4
 
 typedef struct DrinkingState {
-  uint32_t num_drinks;
+  int32_t num_drinks;
   time_t start_time;
 } DrinkingState;
 
@@ -114,7 +114,20 @@ static void update_text() {
   const float ebac = get_ebac(ebac_params.body_water, ebac_params.metabolism, ebac_params.weight_kgs, drinking_state.num_drinks, time_elapsed);
   floatToString(ebac_str, sizeof(ebac_str), ebac);
   snprintf(body_text, sizeof(body_text), "%s EBAC", ebac_str);
-  
+
+  #ifdef DEBUG
+  char body_water_str[10];
+  char metabolism_str[10];
+  char weight_kgs_str[10];
+  floatToString(body_water_str, sizeof(body_water_str), ebac_params.body_water);
+  floatToString(metabolism_str, sizeof(metabolism_str), ebac_params.metabolism);
+  floatToString(weight_kgs_str, sizeof(weight_kgs_str), ebac_params.weight_kgs);
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "ebac: %s, num_drinks: %ld, start_time: %ld",
+		  ebac_str, drinking_state.num_drinks, drinking_state.start_time);
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "body_water: %s, metabolism: %s, weight_kgs: %s",
+		  body_water_str, metabolism_str, weight_kgs_str);
+  #endif
+
   text_layer_set_text(body_text_layer, body_text);
 }
 
@@ -215,7 +228,7 @@ static void in_received_handler(DictionaryIterator *iter, void *context) {
   if (user_data_weight_tuple) {
 	// Convert user's weight to kg before writing.
 	const uint16_t weight_lbs = user_data_weight_tuple->value->uint16;
-	ebac_params.weight_kgs = weight_lbs * 2.2;
+	ebac_params.weight_kgs = weight_lbs / 2.2;
   }
 }
 
