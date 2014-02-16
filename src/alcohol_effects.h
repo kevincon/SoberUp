@@ -1,15 +1,16 @@
 #define MAX_MESSAGE_COLUMN 3
-#define TICKS_PER_ROTATION 10
+#define TICKS_PER_ROTATION 4
 
-static const char const* kMessages[8][3] = {
-  {"0,0", "0,1", "0,2"},
-  {"1,0", "1,1", "1,2"},
-  {"2,0", "2,1", "2,2"},
-  {"3,0", "3,1", "3,2"},
-  {"4,0", "4,1", "4,2"},
-  {"5,0", "5,1", "5,2"},
-  {"6,0", "6,1", "6,2"},
-  {"Wearing a watch! :)", "Wearing a watch! :)", "Wearing a watch! :)"}
+static const char const* kMessages[9][MAX_MESSAGE_COLUMN] = {
+  {"", "", ""},
+  {"Mild euphoria", "Relaxation", "Joyousness"},
+  {"Blunted feelings", "Disinhibition", "Extroversion"},
+  {"Over-expression", "Anger/sadness", "Decreased libido"},
+  {"Stupor", "Motor impairment", "Memory blackout"},
+  {"Unconsciousness", "Possible death", "Nervous system\ndepression"},
+  {"Lack of behavior", "Unconsciousness", "Possible death"},
+  {"High risk of poisoning", "Death", "Call 911"},
+  {"Oh, hackathon,\ngot it", "Oh, hackathon,\ngot it", "Oh, hackathon,\ngot it"}
 };
 
 static int ebac_to_effect_tier(const float ebac) {
@@ -22,7 +23,8 @@ static int ebac_to_effect_tier(const float ebac) {
   else if (ebac < 0.3) { return 4; }
   else if (ebac < 0.4) { return 5; }
   else if (ebac < 0.5) { return 6; }
-  return 7;
+  else if (ebac < 0.75) { return 7; }
+  return 8;
 }
 
 static char const* get_effect_message(const float ebac, const uint32_t timer_tick) {

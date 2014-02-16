@@ -59,6 +59,7 @@ static TextLayer *body_text_layer;
 static TextLayer *label_text_layer;
 static TextLayer *countdown_text_layer;
 static TextLayer *drink_counter_text_layer;
+static TextLayer *effects_text_layer;
 
 static Layer *bottom_bar;
 
@@ -155,10 +156,10 @@ static void update_text() {
 		  body_water_str, metabolism_str, weight_kgs_str);
   #endif
 */
-
   text_layer_set_text(body_text_layer, body_text);
   text_layer_set_text(countdown_text_layer, countdown_text);
   text_layer_set_text(drink_counter_text_layer, drink_counter_text);
+  text_layer_set_text(effects_text_layer, get_effect_message(ebac, time_elapsed));
 }
 
 static void timer_handler(struct tm *tick_time, TimeUnits units_changed) {
@@ -220,16 +221,25 @@ static void window_load(Window *me) {
 	
   layer_add_child(top_bar, bitmap_layer_get_layer(beer_layer));
 	
-  body_text_layer = text_layer_create(GRect(4, 44, width, 60));
+  body_text_layer = text_layer_create(GRect(2, 44, width, 60));
   text_layer_set_font(body_text_layer, fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD));
   text_layer_set_background_color(body_text_layer, GColorClear);
+  text_layer_set_text_alignment(body_text_layer, GTextAlignmentCenter);
   layer_add_child(layer, text_layer_get_layer(body_text_layer));
 
-  label_text_layer = text_layer_create(GRect(4, 44 + 28, width, 60));
-  text_layer_set_font(label_text_layer, fonts_get_system_font(FONT_KEY_GOTHIC_18));
+  label_text_layer = text_layer_create(GRect(2, 44 + 28, width, 60));
+  text_layer_set_font(label_text_layer, fonts_get_system_font(FONT_KEY_GOTHIC_14));
   text_layer_set_background_color(label_text_layer, GColorClear);
-  text_layer_set_text(label_text_layer, "* Estimated BAC *");
+  text_layer_set_text_alignment(label_text_layer, GTextAlignmentCenter);
+  text_layer_set_text(label_text_layer, "(Estimated BAC)");
   layer_add_child(layer, text_layer_get_layer(label_text_layer));
+	
+  effects_text_layer = text_layer_create(GRect(2, 44 + 28 + 20, width, 60));
+  text_layer_set_font(effects_text_layer, fonts_get_system_font(FONT_KEY_GOTHIC_18));
+  text_layer_set_background_color(effects_text_layer, GColorClear);
+  text_layer_set_text_alignment(effects_text_layer, GTextAlignmentCenter);
+  //text_layer_set_text(effects_text_layer, "12345678901234567890");
+  layer_add_child(layer, text_layer_get_layer(effects_text_layer));
 	
   // draw bottom bar (car)
   bottom_bar = layer_create(GRect(0, bounds.size.h - 22, bounds.size.w - ACTION_BAR_WIDTH - 4, bounds.size.h));
