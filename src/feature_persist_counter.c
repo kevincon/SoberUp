@@ -51,10 +51,12 @@ static GBitmap *action_icon_car;
 
 static ActionBarLayer *action_bar;
 
+static Layer *top_bar;
 static TextLayer *header_text_layer;
 static TextLayer *body_text_layer;
 static TextLayer *label_text_layer;
 static TextLayer *countdown_text_layer;
+static TextLayer *drink_counter_text_layer;
 
 static Layer *bottom_bar;
 
@@ -114,7 +116,7 @@ static float get_ebac(const float body_water,
 }
 
 static float get_dp(const float current_ebac) {
-  float dp = (current_ebac - 0.08) / ebac_params.metabolism;
+  float dp = (current_ebac) / ebac_params.metabolism;
   if (dp <= 0.0) {
     return 0.0;
   }
@@ -134,7 +136,7 @@ static void update_text() {
     snprintf(countdown_text, sizeof(countdown_text), "%02d H %02d M", dp_h, (int)((dp - dp_h)*60));
   }
   
-
+/*
   #ifdef DEBUG
   char body_water_str[10];
   char metabolism_str[10];
@@ -147,6 +149,7 @@ static void update_text() {
   APP_LOG(APP_LOG_LEVEL_DEBUG, "body_water: %s, metabolism: %s, weight_kgs: %s",
 		  body_water_str, metabolism_str, weight_kgs_str);
   #endif
+*/
 
   text_layer_set_text(body_text_layer, body_text);
   text_layer_set_text(countdown_text_layer, countdown_text);
@@ -190,11 +193,13 @@ static void window_load(Window *me) {
   Layer *layer = window_get_root_layer(me);
   const int16_t width = layer_get_frame(layer).size.w - ACTION_BAR_WIDTH - 3;
 
-  header_text_layer = text_layer_create(GRect(4, 0, width, 60));
+  top_bar = layer_create(GRect(4, 0, width, 28));
+  header_text_layer = text_layer_create(GRect(0, 0, width, 56));
   text_layer_set_font(header_text_layer, fonts_get_system_font(FONT_KEY_GOTHIC_24));
   text_layer_set_background_color(header_text_layer, GColorClear);
   text_layer_set_text(header_text_layer, "SoberUp");
-  layer_add_child(layer, text_layer_get_layer(header_text_layer));
+  layer_add_child(top_bar, text_layer_get_layer(header_text_layer));
+  layer_add_child(layer, top_bar);
 
   body_text_layer = text_layer_create(GRect(4, 44, width, 60));
   text_layer_set_font(body_text_layer, fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD));
@@ -236,6 +241,7 @@ static void window_unload(Window *window) {
   action_bar_layer_destroy(action_bar);
   bitmap_layer_destroy(car_layer);
   layer_destroy(bottom_bar);
+  layer_destroy(top_bar);
 }
 
 static void in_received_handler(DictionaryIterator *iter, void *context) {
