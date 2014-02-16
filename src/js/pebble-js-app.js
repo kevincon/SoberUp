@@ -1,11 +1,14 @@
+/*global window*/
+
 Pebble.addEventListener("showConfiguration", function(e) {
     // If the weight and gender are note defined, make them their default values
     var store = window.localStorage;
-    if (store.getItem("weight") === undefined)
+    if (store.getItem("weight") === undefined) {
         store.setItem("weight", 150);
-    if (store.getItem("gender") === undefined)
+    }
+    if (store.getItem("gender") === undefined) {
         store.setItem("gender", "male");
-
+    }
     var weight = store.getItem("weight");
     var gender = store.getItem("gender");
     Pebble.openURL("http://reptar-on-ice.herokuapp.com/?weght=" + weight + "&gender" + gender);
@@ -22,11 +25,11 @@ Pebble.addEventListener("webviewclosed",
             store.setItem("gender", configuration.gender);
 
             // Update the config to make parsing easier in C
-            if (configuration.gender == "male")
+            if (configuration.gender == "male") {
                 configuration.gender = 1;
-            else
+            } else {
                 configuration.gender = 0;
-
+            }
             // Send the config to the pebble
             var transactionId = Pebble.sendAppMessage(
                 configuration,
