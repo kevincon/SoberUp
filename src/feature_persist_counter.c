@@ -48,6 +48,7 @@ static Window *window;
 static GBitmap *action_icon_plus;
 static GBitmap *action_icon_minus;
 static GBitmap *action_icon_car;
+static GBitmap *action_icon_beer;
 
 static ActionBarLayer *action_bar;
 
@@ -61,6 +62,7 @@ static TextLayer *drink_counter_text_layer;
 static Layer *bottom_bar;
 
 static BitmapLayer *car_layer;
+static BitmapLayer *beer_layer;
 
 // We'll save the count in memory from persistent storage
 static DrinkingState drinking_state;
@@ -70,6 +72,7 @@ static uint32_t time_elapsed = 0;
 static char ebac_str[10];
 static char countdown_text[20];
 static char body_text[50];
+static char drink_counter_text[4];
 
 static void timer_handler(struct tm *tick_time, TimeUnits units_changed);
 
@@ -126,7 +129,7 @@ static float get_dp(const float current_ebac) {
 static void update_text() {
   const float ebac = get_ebac(ebac_params.body_water, ebac_params.metabolism, ebac_params.weight_kgs, drinking_state.num_drinks, time_elapsed);
   floatToString(ebac_str, sizeof(ebac_str), ebac);
-  snprintf(body_text, sizeof(body_text), "%s EBAC", ebac_str);
+  snprintf(body_text, sizeof(body_text), "%s eBAC", ebac_str);
 	
   const float dp = get_dp(ebac);
   if (dp == 0.0) {
@@ -136,6 +139,7 @@ static void update_text() {
     snprintf(countdown_text, sizeof(countdown_text), "%02d H %02d M", dp_h, (int)((dp - dp_h)*60));
   }
   
+  snprintf(drink_counter_text, sizeof(drink_counter_text), "%d", (int)drinking_state.num_drinks);
 /*
   #ifdef DEBUG
   char body_water_str[10];
@@ -153,6 +157,7 @@ static void update_text() {
 
   text_layer_set_text(body_text_layer, body_text);
   text_layer_set_text(countdown_text_layer, countdown_text);
+  text_layer_set_text(drink_counter_text_layer, drink_counter_text);
 }
 
 static void timer_handler(struct tm *tick_time, TimeUnits units_changed) {
@@ -191,16 +196,29 @@ static void window_load(Window *me) {
   action_bar_layer_set_icon(action_bar, BUTTON_ID_DOWN, action_icon_minus);
 
   Layer *layer = window_get_root_layer(me);
+  GRect bounds = layer_get_bounds(layer);
   const int16_t width = layer_get_frame(layer).size.w - ACTION_BAR_WIDTH - 3;
-
-  top_bar = layer_create(GRect(4, 0, width, 28));
-  header_text_layer = text_layer_create(GRect(0, 0, width, 56));
+	
+  top_bar = layer_create(GRect(4, 10, width, 28 + 10));
+  layer_add_child(layer, top_bar);
+  header_text_layer = text_layer_create(GRect(0, 0, 65, 56));
   text_layer_set_font(header_text_layer, fonts_get_system_font(FONT_KEY_GOTHIC_24));
   text_layer_set_background_color(header_text_layer, GColorClear);
   text_layer_set_text(header_text_layer, "SoberUp");
   layer_add_child(top_bar, text_layer_get_layer(header_text_layer));
-  layer_add_child(layer, top_bar);
-
+  beer_layer = bitmap_layer_create(GRect(width - 52, 0, width - 48, 28));
+  bitmap_layer_set_bitmap(beer_layer, action_icon_beer);
+  bitmap_layer_set_alignment(beer_layer, GAlignCenter);
+	
+  drink_counter_text_layer = text_layer_create(GRect(width - 52 - 38, 0, width - 52 - 10, 38));
+  text_layer_set_font(drink_counter_text_layer, fonts_get_system_font(FONT_KEY_GOTHIC_24));
+  text_layer_set_background_color(drink_counter_text_layer, GColorClear);
+  text_layer_set_text(drink_counter_text_layer, "0");
+  text_layer_set_text_alignment(drink_counter_text_layer, GTextAlignmentRight);
+  layer_add_child(top_bar, text_layer_get_layer(drink_counter_text_layer));	
+	
+  layer_add_child(top_bar, bitmap_layer_get_layer(beer_layer));
+	
   body_text_layer = text_layer_create(GRect(4, 44, width, 60));
   text_layer_set_font(body_text_layer, fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD));
   text_layer_set_background_color(body_text_layer, GColorClear);
@@ -213,7 +231,6 @@ static void window_load(Window *me) {
   layer_add_child(layer, text_layer_get_layer(label_text_layer));
 	
   // draw bottom bar (car)
-  GRect bounds = layer_get_bounds(layer);
   bottom_bar = layer_create(GRect(0, bounds.size.h - 22, bounds.size.w - ACTION_BAR_WIDTH - 4, bounds.size.h));
   layer_add_child(layer, bottom_bar);
 							
@@ -237,9 +254,11 @@ static void window_unload(Window *window) {
   text_layer_destroy(body_text_layer);
   text_layer_destroy(label_text_layer);
   text_layer_destroy(countdown_text_layer);
+  text_layer_destroy(drink_counter_text_layer);
 
   action_bar_layer_destroy(action_bar);
   bitmap_layer_destroy(car_layer);
+  bitmap_layer_destroy(beer_layer);
   layer_destroy(bottom_bar);
   layer_destroy(top_bar);
 }
@@ -278,6 +297,7 @@ static void init(void) {
   action_icon_plus = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_ACTION_ICON_PLUS);
   action_icon_minus = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_ACTION_ICON_MINUS);
   action_icon_car = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_ACTION_ICON_CAR);
+  action_icon_beer = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_ACTION_ICON_BEER);
 	
   window = window_create();
   window_set_window_handlers(window, (WindowHandlers) {
@@ -321,6 +341,7 @@ static void deinit(void) {
   gbitmap_destroy(action_icon_plus);
   gbitmap_destroy(action_icon_minus);
   gbitmap_destroy(action_icon_car);
+  gbitmap_destroy(action_icon_beer);
 }
 
 int main(void) {
