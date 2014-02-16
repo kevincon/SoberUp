@@ -2,18 +2,24 @@
     "versionLabel": "2.0.0",
     "uuid": "703b16db-2e94-4b39-83ea-3f206a254235",
     "appKeys": {},
-    "longName": "Drink Counter",
+    "longName": "SoberUp",
     "versionCode": 2,
     "capabilities": [
-        ""
+        "configurable"
     ],
-    "shortName": "Drink Counter",
-    "companyName": "Pebble Technology",
+    "shortName": "SoberUp",
+    "companyName": "AlumniLikeTurtles",
     "watchapp": {
         "watchface": false
     },
     "resources": {
         "media": [
+            {
+                "menuIcon": true,
+                "type": "png",
+                "name": "IMAGE_ACTION_ICON_BEER",
+                "file": "images/glyphicons_274_beer.png"
+            },
             {
                 "type": "png",
                 "name": "IMAGE_ACTION_ICON_MINUS",
@@ -28,12 +34,6 @@
                 "type": "png",
                 "name": "IMAGE_ACTION_ICON_CAR",
                 "file": "images/glyphicons_005_car.png"
-            },
-            {
-                "menuIcon": true,
-                "type": "png",
-                "name": "IMAGE_ACTION_ICON_BEER",
-                "file": "images/glyphicons_274_beer.png"
             }
         ]
     }
