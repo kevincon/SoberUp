@@ -36,6 +36,11 @@ static int num_drinks = NUM_DRINKS_DEFAULT;
 static time_t start_time = START_TIME_DEFAULT;
 static uint32_t time_elapsed = TIME_ELAPSED_DEFAULT;
 
+static char ebac_str[10];
+static char body_text[50];
+
+static void timer_handler(struct tm *tick_time, TimeUnits units_changed);
+
 // This is from http://forums.getpebble.com/discussion/8280/displaying-the-value-of-a-floating-point
 // because Pebble doesn't support %f in snprintf.
 static char* floatToString(char* buffer, int bufferSize, double number) {
@@ -53,9 +58,11 @@ static char* floatToString(char* buffer, int bufferSize, double number) {
 static void start_counting() {
   time_elapsed = 1;
   start_time = time(NULL);
+  tick_timer_service_subscribe(SECOND_UNIT, timer_handler);
 }
 
 static void stop_counting() {
+  tick_timer_service_unsubscribe();
   num_drinks = 0;
   start_time = 0;
   time_elapsed = 0;
@@ -79,10 +86,7 @@ static float get_ebac(const float body_water,
 
 static void update_text() {
   const float ebac = get_ebac(BODY_WATER, METABOLISM, WEIGHT_KGS, num_drinks, time_elapsed);
-  
-  static char ebac_str[10];
   floatToString(ebac_str, sizeof(ebac_str), ebac);
-  static char body_text[50];
   snprintf(body_text, sizeof(body_text), "%s EBAC", ebac_str);
   
   text_layer_set_text(body_text_layer, body_text);
@@ -90,9 +94,10 @@ static void update_text() {
 
 static void timer_handler(struct tm *tick_time, TimeUnits units_changed) {
   if (start_time > 0) {
-    uint32_t timediff = (uint32_t)(time(NULL) - start_time);
-    APP_LOG(APP_LOG_LEVEL_DEBUG, "Elapsed time: %lu", timediff);
-	time_elapsed = timediff;
+    time_elapsed = (uint32_t)(time(NULL) - start_time);
+	  //uint32_t timediff = (uint32_t)(time(NULL) - start_time);
+    //APP_LOG(APP_LOG_LEVEL_DEBUG, "Elapsed time: %lu", timediff);
+	//time_elapsed = timediff;
   }
   update_text();
 }
@@ -166,7 +171,7 @@ static void init(void) {
     .unload = window_unload,
   });
 	
-  tick_timer_service_subscribe(SECOND_UNIT, timer_handler);
+  //tick_timer_service_subscribe(SECOND_UNIT, timer_handler);
 
   window_stack_push(window, true /* Animated */);
 
