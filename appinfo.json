@@ -11,16 +11,22 @@
         "configurable"
     ],
     "shortName": "SoberUp",
-    "companyName": "Alumniliketurtles",
+    "companyName": "AlumniLikeTurtles",
     "watchapp": {
         "watchface": false
     },
     "resources": {
         "media": [
             {
+                "menuIcon": true,
                 "type": "png",
-                "name": "IMAGE_ACTION_ICON_CAR",
-                "file": "images/glyphicons_005_car.png"
+                "name": "IMAGE_ACTION_ICON_BEER",
+                "file": "images/glyphicons_274_beer.png"
+            },
+            {
+                "type": "png",
+                "name": "IMAGE_ACTION_ICON_MINUS",
+                "file": "images/action_icon_minus.png"
             },
             {
                 "type": "png",
@@ -29,14 +35,8 @@
             },
             {
                 "type": "png",
-                "name": "IMAGE_ACTION_ICON_MINUS",
-                "file": "images/action_icon_minus.png"
-            },
-            {
-                "menuIcon": true,
-                "type": "png",
-                "name": "IMAGE_ACTION_ICON_BEER",
-                "file": "images/glyphicons_274_beer.png"
+                "name": "IMAGE_ACTION_ICON_CAR",
+                "file": "images/glyphicons_005_car.png"
             }
         ]
     }
