@@ -24,12 +24,17 @@ static Window *window;
 
 static GBitmap *action_icon_plus;
 static GBitmap *action_icon_minus;
+static GBitmap *action_icon_car;
 
 static ActionBarLayer *action_bar;
 
 static TextLayer *header_text_layer;
 static TextLayer *body_text_layer;
 static TextLayer *label_text_layer;
+
+static Layer *bottom_bar;
+
+static BitmapLayer *car_layer;
 
 // We'll save the count in memory from persistent storage
 static int num_drinks = NUM_DRINKS_DEFAULT;
@@ -149,8 +154,18 @@ static void window_load(Window *me) {
   text_layer_set_background_color(label_text_layer, GColorClear);
   text_layer_set_text(label_text_layer, "* Estimate *");
   layer_add_child(layer, text_layer_get_layer(label_text_layer));
-
+	
   update_text();
+	
+  // draw bottom bar (car)
+  GRect bounds = layer_get_bounds(layer);
+  bottom_bar = layer_create(GRect(0, bounds.size.h - 26, bounds.size.w, bounds.size.h));
+  layer_add_child(layer, bottom_bar);
+							
+  car_layer = bitmap_layer_create(GRect(4, 0, 26, 22));
+  bitmap_layer_set_bitmap(car_layer, action_icon_car);
+  bitmap_layer_set_alignment(car_layer, GAlignCenter);
+  layer_add_child(bottom_bar, bitmap_layer_get_layer(car_layer));
 }
 
 static void window_unload(Window *window) {
@@ -159,12 +174,15 @@ static void window_unload(Window *window) {
   text_layer_destroy(label_text_layer);
 
   action_bar_layer_destroy(action_bar);
+  bitmap_layer_destroy(car_layer);
+  layer_destroy(bottom_bar);
 }
 
 static void init(void) {
   action_icon_plus = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_ACTION_ICON_PLUS);
   action_icon_minus = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_ACTION_ICON_MINUS);
-
+  action_icon_car = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_ACTION_ICON_CAR);
+	
   window = window_create();
   window_set_window_handlers(window, (WindowHandlers) {
     .load = window_load,
@@ -193,6 +211,7 @@ static void deinit(void) {
 
   gbitmap_destroy(action_icon_plus);
   gbitmap_destroy(action_icon_minus);
+  gbitmap_destroy(action_icon_car);
 }
 
 int main(void) {
