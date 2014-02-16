@@ -11,7 +11,7 @@ Pebble.addEventListener("showConfiguration", function(e) {
     }
     var weight = store.getItem("weight");
     var gender = store.getItem("gender");
-    Pebble.openURL("http://reptar-on-ice.herokuapp.com/?weight=" + weight + "&gender" + gender);
+    Pebble.openURL("http://reptar-on-ice.herokuapp.com/?weight=" + weight + "&gender=" + gender);
 });
 
 Pebble.addEventListener("webviewclosed",
@@ -23,7 +23,7 @@ Pebble.addEventListener("webviewclosed",
             var store = window.localStorage;
             store.setItem("weight", configuration.weight);
             store.setItem("gender", configuration.gender);
-
+			
             // Update the config to make parsing easier in C
             if (configuration.gender == "male") {
                 configuration.gender = 1;
