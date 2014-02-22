@@ -136,7 +136,7 @@ static void update_text() {
 
     const float dp = get_dp(ebac);
     if (dp == 0.0) {
-        snprintf(countdown_text, sizeof(countdown_text), "OK TO DRIVE");
+        snprintf(countdown_text, sizeof(countdown_text), "SOBER");
     } else {
         int dp_h = (int) dp;
         snprintf(countdown_text, sizeof(countdown_text), "%02d H %02d M", dp_h, (int)((dp - dp_h)*60));
