@@ -9,9 +9,13 @@ Pebble.addEventListener("showConfiguration", function(e) {
     if (store.getItem("gender") === undefined) {
         store.setItem("gender", "male");
     }
+    if (store.getItem("signedEULA") === undefined) {
+        store.setItem("signedEULA", false);
+    }
     var weight = store.getItem("weight");
     var gender = store.getItem("gender");
-    Pebble.openURL("http://reptar-on-ice.herokuapp.com/?weight=" + weight + "&gender=" + gender);
+    var signed = store.getItem("signedEULA");
+    Pebble.openURL("http://reptar-on-ice.herokuapp.com/?weight=" + weight + "&gender=" + gender + "&signed=" + signed);
 });
 
 Pebble.addEventListener("webviewclosed",
@@ -23,7 +27,8 @@ Pebble.addEventListener("webviewclosed",
             var store = window.localStorage;
             store.setItem("weight", configuration.weight);
             store.setItem("gender", configuration.gender);
-			
+            store.setItem("signedEULA", configuration.signedEULA);
+
             // Update the config to make parsing easier in C
             if (configuration.gender == "male") {
                 configuration.gender = 1;
