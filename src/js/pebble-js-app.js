@@ -36,8 +36,10 @@ Pebble.addEventListener("webviewclosed",
                 configuration.gender = 0;
             }
             // Send the config to the pebble
-			console.log(configuration.gender);
-			console.log(configuration.weight);
+			console.log("Gender: " + configuration.gender);
+			console.log("Weight: " + configuration.weight);
+            console.log("Accepted Eula: " + configuration.signedEULA);
+
             var transactionId = Pebble.sendAppMessage(
                 configuration,
                 function(e) {
