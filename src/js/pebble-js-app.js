@@ -15,7 +15,10 @@ Pebble.addEventListener("showConfiguration", function(e) {
     var weight = store.getItem("weight");
     var gender = store.getItem("gender");
     var signed = store.getItem("signedEULA");
-    Pebble.openURL("http://reptar-on-ice.herokuapp.com/?weight=" + weight + "&gender=" + gender + "&signedEULA=" + signed);
+    Pebble.openURL("http://reptar-on-ice.herokuapp.com/" +
+        "?weight=" + weight +
+        "&gender=" + gender +
+        "&signedEULA=" + signed);
 });
 
 Pebble.addEventListener("webviewclosed",
@@ -36,8 +39,8 @@ Pebble.addEventListener("webviewclosed",
                 configuration.gender = 0;
             }
             // Send the config to the pebble
-			console.log("Gender: " + configuration.gender);
-			console.log("Weight: " + configuration.weight);
+            console.log("Gender: " + configuration.gender);
+            console.log("Weight: " + configuration.weight);
             console.log("Accepted Eula: " + configuration.signedEULA);
 
             var transactionId = Pebble.sendAppMessage(
