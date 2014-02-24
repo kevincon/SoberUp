@@ -1,3 +1,4 @@
+#pragma once
 #define MAX_MESSAGE_COLUMN 3
 #define TICKS_PER_ROTATION 4
 

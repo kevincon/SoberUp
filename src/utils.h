@@ -1,3 +1,4 @@
+#pragma once
 #include "pebble.h"
 
 // This is from http://forums.getpebble.com/discussion/8280/displaying-the-value-of-a-floating-point
