@@ -19,8 +19,8 @@
         "media": [
             {
                 "type": "png",
-                "name": "IMAGE_ACTION_ICON_CAR",
-                "file": "images/glyphicons_005_car.png"
+                "name": "IMAGE_BOTTOM_ICON_STOPWATCH",
+                "file": "images/glyphicons_055_stopwatch.png"
             },
             {
                 "type": "png",
@@ -35,7 +35,7 @@
             {
                 "menuIcon": true,
                 "type": "png",
-                "name": "IMAGE_ACTION_ICON_BEER",
+                "name": "IMAGE_MENU_ICON_BEER",
                 "file": "images/glyphicons_274_beer.png"
             }
         ]

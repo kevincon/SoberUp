@@ -7,15 +7,13 @@ static const char const* kMessages[9][MAX_MESSAGE_COLUMN] = {
     {"Blunted feelings", "Disinhibition", "Extroversion"},
     {"Over-expression", "Anger/sadness", "Decreased libido"},
     {"Stupor", "Motor impairment", "Memory blackout"},
-    {"Unconsciousness", "Possible death", "Nervous system\ndepression"},
+    {"Unconsciousness", "Possible death", "CNS depression"},
     {"Lack of behavior", "Unconsciousness", "Possible death"},
-    {"High risk of poisoning", "Death", "Call 911"},
-    {"Oh, hackathon,\ngot it", "Oh, hackathon,\ngot it", "Oh, hackathon,\ngot it"}
+    {"Poisoning", "Death", "Call 911"},
+    {"...", "...", "..."}
 };
 
 static int ebac_to_effect_tier(const float ebac) {
-    // TODO(ebensh): This is a lot of float comparisons and we could drop
-    // the first value in each half-open interval to save processing time.
     if (ebac < 0.03) { return 0; }
     else if (ebac < 0.06) { return 1; }
     else if (ebac < 0.09) { return 2; }
