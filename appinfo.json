@@ -3,7 +3,8 @@
     "uuid": "703b16db-2e94-4b39-83ea-3f206a254235",
     "appKeys": {
         "gender": 0,
-        "weight": 1
+        "weight": 1,
+        "signedEULA":2
     },
     "longName": "SoberUp",
     "versionCode": 2,

@@ -15,11 +15,13 @@
 enum {
     USER_DATA_KEY_GENDER = 0x0,
     USER_DATA_KEY_WEIGHT = 0x1,
+    USER_DATA_KEY_SIGNED_EULA = 0x2
 };
 
 // This is a custom defined key for saving our state structs
 #define DRINKING_STATE_PKEY 3
 #define EBAC_PARAMS_PKEY 4
+#define SIGNED_EULA_PKEY 5
 
 typedef struct DrinkingState {
     int32_t num_drinks;
@@ -50,6 +52,7 @@ EBACParams get_default_ebac_params() {
 // We'll save the count in memory from persistent storage
 static DrinkingState drinking_state;
 static EBACParams ebac_params;
+static bool signed_eula = false;
 static uint32_t time_elapsed = 0;
 
 static char ebac_str[10];
@@ -149,9 +152,24 @@ static void decrement_click_handler(ClickRecognizerRef recognizer, void *context
     update_text();
 }
 
+static void click_config_provider(void *context) {
+    const uint16_t repeat_interval_ms = 50;
+    window_single_repeating_click_subscribe(BUTTON_ID_UP, repeat_interval_ms, (ClickHandler) increment_click_handler);
+    window_single_repeating_click_subscribe(BUTTON_ID_DOWN, repeat_interval_ms, (ClickHandler) decrement_click_handler);
+}
+
 static void in_received_handler(DictionaryIterator *iter, void *context) {
     Tuple *user_data_gender_tuple = dict_find(iter, USER_DATA_KEY_GENDER);
     Tuple *user_data_weight_tuple = dict_find(iter, USER_DATA_KEY_WEIGHT);
+    Tuple *user_data_signed_eula_tuple = dict_find(iter, USER_DATA_KEY_SIGNED_EULA);
+
+    if (user_data_signed_eula_tuple) {
+        signed_eula = (bool) user_data_signed_eula_tuple->value->uint8;
+        if (signed_eula) {
+            gui_hide_alert();
+            gui_setup_buttons(click_config_provider);
+        }
+    }
 
     if (user_data_gender_tuple) {
         const uint8_t gender = user_data_gender_tuple->value->uint8;
@@ -179,15 +197,20 @@ static void app_message_init(void) {
     app_message_open(64, 64);
 }
 
-static void click_config_provider(void *context) {
-    const uint16_t repeat_interval_ms = 50;
-    window_single_repeating_click_subscribe(BUTTON_ID_UP, repeat_interval_ms, (ClickHandler) increment_click_handler);
-    window_single_repeating_click_subscribe(BUTTON_ID_DOWN, repeat_interval_ms, (ClickHandler) decrement_click_handler);
-}
-
 static void init(void) {
     gui_init();
-    gui_setup_buttons(click_config_provider);
+
+    if (persist_exists(SIGNED_EULA_PKEY)) {
+        persist_read_data(SIGNED_EULA_PKEY, &signed_eula, sizeof(signed_eula));
+    } else {
+        signed_eula = false;
+    }
+
+    if (!signed_eula) {
+        gui_show_alert();
+    } else {
+        gui_setup_buttons(click_config_provider);
+    }
 
     // Get the count from persistent storage for use if it exists, otherwise use the default
     stop_counting();  // Reset our drinking counters to their default state.
@@ -219,14 +242,13 @@ static void deinit(void) {
     // Save data into persistent storage on exit.
     persist_write_data(DRINKING_STATE_PKEY, &drinking_state, sizeof(DrinkingState));
     persist_write_data(EBAC_PARAMS_PKEY, &ebac_params, sizeof(EBACParams));
+    persist_write_data(SIGNED_EULA_PKEY, &signed_eula, sizeof(signed_eula));
 
     gui_destroy();
 }
 
 int main(void) {
     init();
-
     app_event_loop();
-
     deinit();
 }

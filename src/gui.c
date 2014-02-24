@@ -1,5 +1,6 @@
 #include "gui.h"
 #include "pebble.h"
+#include "alert.h"
 
 static Window *window;
 
@@ -58,9 +59,6 @@ static void load_action_bar() {
 
     action_icon_plus = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_ACTION_ICON_PLUS);
     action_icon_minus = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_ACTION_ICON_MINUS);
-
-    action_bar_layer_set_icon(action_bar, BUTTON_ID_UP, action_icon_plus);
-    action_bar_layer_set_icon(action_bar, BUTTON_ID_DOWN, action_icon_minus);
 }
 
 static void unload_action_bar() {
@@ -209,7 +207,17 @@ void gui_update_alcohol_effects(const char *alcohol_effects_text) {
 }
 
 void gui_setup_buttons(ClickConfigProvider click_config) {
+    action_bar_layer_set_icon(action_bar, BUTTON_ID_UP, action_icon_plus);
+    action_bar_layer_set_icon(action_bar, BUTTON_ID_DOWN, action_icon_minus);
     action_bar_layer_set_click_config_provider(action_bar, click_config);
+}
+
+void gui_show_alert() {
+    alert_show(window, "Alert", "Please configure SoberUp settings on your phone.", 0);
+}
+
+void gui_hide_alert() {
+    alert_cancel();
 }
 
 void gui_init() {
