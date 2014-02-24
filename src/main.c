@@ -84,6 +84,11 @@ static float get_ebac(const float body_water,
         stop_counting();
         return 0.0;
     }
+
+    if (ebac > 1.0) {
+        return 1.0;
+    }
+    
     return ebac;
 }
 
@@ -129,6 +134,11 @@ static void increment_click_handler(ClickRecognizerRef recognizer, void *context
     if (drinking_state.num_drinks++ == 0) {
         start_counting();
     }
+
+    if (drinking_state.num_drinks > 99) {
+        drinking_state.num_drinks = 99;
+    }
+
     update_text();
 }
 
