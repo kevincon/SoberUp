@@ -9,10 +9,6 @@ static ActionBarLayer *action_bar;
 static GBitmap *action_icon_plus;
 static GBitmap *action_icon_minus;
 
-/* Title bar */
-static Layer *title_bar;
-static TextLayer *title_text_layer;
-
 /* Top bar */
 static Layer *top_bar;
 static TextLayer *header_text_layer;
@@ -31,27 +27,6 @@ static BitmapLayer *stopwatch_layer;
 static GBitmap *bottom_icon_stopwatch;
 static TextLayer *countdown_label_layer;
 static TextLayer *countdown_text_layer;
-
-static void load_title_bar() {
-    Layer *root_layer = window_get_root_layer(window);
-    const int16_t width = layer_get_frame(root_layer).size.w - ACTION_BAR_WIDTH;
-    const int16_t height = 35;
-
-    title_bar = layer_create(GRect(0, 0, width, height));
-    layer_add_child(root_layer, title_bar);
-
-    title_text_layer = text_layer_create(GRect(0, 0, width, height));
-    text_layer_set_font(title_text_layer, fonts_get_system_font(FONT_KEY_DROID_SERIF_28_BOLD));
-    text_layer_set_background_color(title_text_layer, GColorClear);
-    text_layer_set_text_alignment(title_text_layer, GTextAlignmentCenter);
-    text_layer_set_text(title_text_layer, "SoberUp");
-    layer_add_child(title_bar, text_layer_get_layer(title_text_layer));
-}
-
-static void unload_title_bar() {
-    text_layer_destroy(title_text_layer);
-    layer_destroy(title_bar);
-}
 
 static void load_action_bar() {
     action_bar = action_bar_layer_create();
@@ -72,7 +47,7 @@ static void load_top_bar() {
     Layer *root_layer = window_get_root_layer(window);
     const int16_t width = layer_get_frame(root_layer).size.w - ACTION_BAR_WIDTH - 6;
 
-    top_bar = layer_create(GRect(4, 26 + 10, width, 28));
+    top_bar = layer_create(GRect(4, 10, width, 28));
     layer_add_child(root_layer, top_bar);
 
     header_text_layer = text_layer_create(GRect(0, 0, 80, 56));
@@ -110,20 +85,20 @@ static void load_body() {
     Layer *root_layer = window_get_root_layer(window);
     const int16_t width = layer_get_frame(root_layer).size.w - ACTION_BAR_WIDTH - 3;
 
-    body_text_layer = text_layer_create(GRect(2, 26 + 35, width, 60));
+    body_text_layer = text_layer_create(GRect(2, 13 + 35, width, 60));
     text_layer_set_font(body_text_layer, fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD));
     text_layer_set_background_color(body_text_layer, GColorClear);
     text_layer_set_text_alignment(body_text_layer, GTextAlignmentCenter);
     layer_add_child(root_layer, text_layer_get_layer(body_text_layer));
 
-    label_text_layer = text_layer_create(GRect(2, 26 + 35 + 28, width, 60));
+    label_text_layer = text_layer_create(GRect(2, 13 + 35 + 28, width, 60));
     text_layer_set_font(label_text_layer, fonts_get_system_font(FONT_KEY_GOTHIC_14));
     text_layer_set_background_color(label_text_layer, GColorClear);
     text_layer_set_text_alignment(label_text_layer, GTextAlignmentCenter);
     text_layer_set_text(label_text_layer, "(Estimated BAC)");
     layer_add_child(root_layer, text_layer_get_layer(label_text_layer));
 
-    effects_text_layer = text_layer_create(GRect(2, 26 + 35 + 28 + 12, width, 60));
+    effects_text_layer = text_layer_create(GRect(2, 13 + 35 + 28 + 12, width, 60));
     text_layer_set_font(effects_text_layer, fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD));
     text_layer_set_background_color(effects_text_layer, GColorClear);
     text_layer_set_text_alignment(effects_text_layer, GTextAlignmentCenter);
@@ -175,7 +150,6 @@ static void unload_bottom_bar() {
 }
 
 void window_load(Window *me) {
-    load_title_bar();
     load_action_bar();
     load_top_bar();
     load_body();
@@ -183,11 +157,11 @@ void window_load(Window *me) {
 }
 
 void window_unload(Window *window) {
-    unload_title_bar();
     unload_action_bar();
     unload_top_bar();
     unload_body();
-    unload_bottom_bar();    
+    unload_bottom_bar();
+    gui_hide_alert();
 }
 
 void gui_update_ebac(char *ebac_text) {
