@@ -3,7 +3,7 @@
 #include "gui.h"
 #include "utils.h"
 
-#define DEBUG
+//#define DEBUG
 
 #ifdef DEBUG
     #define SECONDS_IN_HOUR 60.0
