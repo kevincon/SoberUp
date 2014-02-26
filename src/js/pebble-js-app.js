@@ -15,10 +15,14 @@ Pebble.addEventListener("showConfiguration", function(e) {
     var weight = store.getItem("weight");
     var gender = store.getItem("gender");
     var signed = store.getItem("signedEULA");
-    Pebble.openURL("http://reptar-on-ice.herokuapp.com/" +
+
+    var url = "http://reptar-on-ice.herokuapp.com/" +
         "?weight=" + weight +
         "&gender=" + gender +
-        "&signedEULA=" + signed);
+        "&signedEULA=" + signed;
+
+    console.log(url);
+    Pebble.openURL(url);
 });
 
 Pebble.addEventListener("webviewclosed",
