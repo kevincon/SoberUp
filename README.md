@@ -36,7 +36,7 @@ Although we don't plan on developing SoberUp further, we welcome contributions f
 
 The notification window that blocks users from using the app until they have configured their weight/gender uses code from Chris Lewis's [pebble-alert-lib](https://github.com/C-D-Lewis/pebble-alert-lib).
 
-The beer icon and the stopwatch icon in the app come from Jan Kovařík's [GLPYHICONS](http://glyphicons.com/license/) set. They are available under the [Creative Commons Attribution 3.0 Unported license](http://creativecommons.org/licenses/by/3.0/).
+The beer icon and the stopwatch icon in the app come from Jan Kovařík's [GLPYHICONS](http://glyphicons.com) set. They are available under the [Creative Commons Attribution 3.0 Unported license](http://creativecommons.org/licenses/by/3.0/).
 
 The design assets in the design folder utilize the following graphics:
 
