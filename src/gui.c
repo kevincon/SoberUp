@@ -108,6 +108,7 @@ static void load_body() {
 static void unload_body() {
     text_layer_destroy(body_text_layer);
     text_layer_destroy(label_text_layer);
+    text_layer_destroy(effects_text_layer);
 }
 
 static void load_bottom_bar() {
