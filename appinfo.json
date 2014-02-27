@@ -1,5 +1,5 @@
 {
-    "versionLabel": "2.0.0",
+    "versionLabel": "1.0.0",
     "uuid": "703b16db-2e94-4b39-83ea-3f206a254235",
     "appKeys": {
         "gender": 0,
@@ -7,7 +7,7 @@
         "signedEULA":2
     },
     "longName": "SoberUp",
-    "versionCode": 2,
+    "versionCode": 1,
     "capabilities": [
         "configurable"
     ],
