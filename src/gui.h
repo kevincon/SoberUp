@@ -1,5 +1,5 @@
 #pragma once
-#include "pebble.h"
+#include <pebble.h>
 
 void gui_update_ebac(char *ebac_text);
 void gui_update_countdown(char *countdown_text);

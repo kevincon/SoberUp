@@ -1,4 +1,4 @@
-#include "pebble.h"
+#include <pebble.h>
 #include "alcohol_effects.h"
 #include "gui.h"
 #include "utils.h"

@@ -1,5 +1,4 @@
 #include "gui.h"
-#include "pebble.h"
 #include "alert.h"
 
 static Window *window;
