@@ -3,13 +3,13 @@
 Pebble.addEventListener("showConfiguration", function(e) {
     // If the weight and gender are note defined, make them their default values
     var store = window.localStorage;
-    if (store.getItem("weight") === undefined) {
+    if (store.getItem("weight") === null) {
         store.setItem("weight", 150);
     }
-    if (store.getItem("gender") === undefined) {
+    if (store.getItem("gender") === null) {
         store.setItem("gender", "male");
     }
-    if (store.getItem("signedEULA") === undefined) {
+    if (store.getItem("signedEULA") === null) {
         store.setItem("signedEULA", false);
     }
     var weight = store.getItem("weight");
