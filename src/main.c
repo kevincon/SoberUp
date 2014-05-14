@@ -91,7 +91,7 @@ static float get_ebac(const float body_water,
     if (ebac > 1.0) {
         return 1.0;
     }
-    
+
     return ebac;
 }
 
@@ -165,6 +165,7 @@ static void in_received_handler(DictionaryIterator *iter, void *context) {
 
     if (user_data_signed_eula_tuple) {
         signed_eula = (bool) user_data_signed_eula_tuple->value->uint8;
+        persist_write_data(SIGNED_EULA_PKEY, &signed_eula, sizeof(signed_eula));
         if (signed_eula) {
             gui_hide_alert();
             gui_setup_buttons(click_config_provider);
