@@ -59,3 +59,9 @@ Pebble.addEventListener("webviewclosed",
         }
     }
 );
+
+Pebble.addEventListener("ready", function(e) {
+    "use strict";
+    console.log("Pebble JS ready");
+});
+
