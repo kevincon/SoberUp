@@ -3,26 +3,15 @@
 Pebble.addEventListener("showConfiguration", function(e) {
     // If the weight and gender are note defined, make them their default values
     var store = window.localStorage;
-    if (store.getItem("weight") === null) {
+    if (store.getItem("weight") === undefined) {
         store.setItem("weight", 150);
     }
-    if (store.getItem("gender") === null) {
+    if (store.getItem("gender") === undefined) {
         store.setItem("gender", "male");
-    }
-    if (store.getItem("signedEULA") === null) {
-        store.setItem("signedEULA", false);
     }
     var weight = store.getItem("weight");
     var gender = store.getItem("gender");
-    var signed = store.getItem("signedEULA");
-
-    var url = "http://reptar-on-ice.herokuapp.com/" +
-        "?weight=" + weight +
-        "&gender=" + gender +
-        "&signedEULA=" + signed;
-
-    console.log(url);
-    Pebble.openURL(url);
+    Pebble.openURL("http://reptar-on-ice.herokuapp.com/?weight=" + weight + "&gender=" + gender);
 });
 
 Pebble.addEventListener("webviewclosed",
@@ -34,8 +23,7 @@ Pebble.addEventListener("webviewclosed",
             var store = window.localStorage;
             store.setItem("weight", configuration.weight);
             store.setItem("gender", configuration.gender);
-            store.setItem("signedEULA", configuration.signedEULA);
-
+			
             // Update the config to make parsing easier in C
             if (configuration.gender == "male") {
                 configuration.gender = 1;
@@ -43,10 +31,8 @@ Pebble.addEventListener("webviewclosed",
                 configuration.gender = 0;
             }
             // Send the config to the pebble
-            console.log("Gender: " + configuration.gender);
-            console.log("Weight: " + configuration.weight);
-            console.log("Accepted Eula: " + configuration.signedEULA);
-
+			console.log(configuration.gender);
+			console.log(configuration.weight);
             var transactionId = Pebble.sendAppMessage(
                 configuration,
                 function(e) {
@@ -59,9 +45,3 @@ Pebble.addEventListener("webviewclosed",
         }
     }
 );
-
-Pebble.addEventListener("ready", function(e) {
-    "use strict";
-    console.log("Pebble JS ready");
-});
-

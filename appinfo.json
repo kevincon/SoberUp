@@ -1,44 +1,44 @@
 {
-    "versionLabel": "1.0.1",
-    "uuid": "1c51c9c3-d1e4-4ba6-8cc9-e0e24713152b",
     "appKeys": {
         "gender": 0,
-        "weight": 1,
-        "signedEULA":2
+        "weight": 1
     },
-    "longName": "SoberUp",
-    "versionCode": 1,
     "capabilities": [
         "configurable"
     ],
-    "shortName": "SoberUp",
-    "companyName": "AlumniLikeTurtles",
-    "watchapp": {
-        "watchface": false
-    },
+    "companyName": "Alumniliketurtles",
+    "longName": "SoberUp",
+    "projectType": "native",
     "resources": {
         "media": [
             {
-                "type": "png",
-                "name": "IMAGE_BOTTOM_ICON_STOPWATCH",
-                "file": "images/glyphicons_055_stopwatch.png"
-            },
-            {
-                "type": "png",
-                "name": "IMAGE_ACTION_ICON_PLUS",
-                "file": "images/action_icon_plus.png"
-            },
-            {
-                "type": "png",
-                "name": "IMAGE_ACTION_ICON_MINUS",
-                "file": "images/action_icon_minus.png"
-            },
-            {
+                "file": "images/glyphicons_274_beer.png",
                 "menuIcon": true,
-                "type": "png",
-                "name": "IMAGE_MENU_ICON_BEER",
-                "file": "images/glyphicons_274_beer.png"
+                "name": "IMAGE_ACTION_ICON_BEER",
+                "type": "png"
+            },
+            {
+                "file": "images/action_icon_minus.png",
+                "name": "IMAGE_ACTION_ICON_MINUS",
+                "type": "png"
+            },
+            {
+                "file": "images/action_icon_plus.png",
+                "name": "IMAGE_ACTION_ICON_PLUS",
+                "type": "png"
+            },
+            {
+                "file": "images/glyphicons_005_car.png",
+                "name": "IMAGE_ACTION_ICON_CAR",
+                "type": "png"
             }
         ]
+    },
+    "shortName": "SoberUp",
+    "uuid": "703b16db-2e94-4b39-83ea-3f206a254235",
+    "versionCode": 2,
+    "versionLabel": "2.0",
+    "watchapp": {
+        "watchface": false
     }
 }
