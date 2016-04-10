@@ -1,44 +1,49 @@
 {
-    "versionLabel": "1.0",
-    "uuid": "1c51c9c3-d1e4-4ba6-8cc9-e0e24713152b",
-    "appKeys": {
-        "gender": 0,
-        "weight": 1,
-        "signedEULA":2
-    },
-    "longName": "SoberUp",
-    "versionCode": 1,
-    "capabilities": [
-        "configurable"
-    ],
-    "shortName": "SoberUp",
-    "companyName": "AlumniLikeTurtles",
-    "watchapp": {
-        "watchface": false
-    },
-    "resources": {
-        "media": [
-            {
-                "type": "png",
-                "name": "IMAGE_BOTTOM_ICON_STOPWATCH",
-                "file": "images/glyphicons_055_stopwatch.png"
-            },
-            {
-                "type": "png",
-                "name": "IMAGE_ACTION_ICON_PLUS",
-                "file": "images/action_icon_plus.png"
-            },
-            {
-                "type": "png",
-                "name": "IMAGE_ACTION_ICON_MINUS",
-                "file": "images/action_icon_minus.png"
-            },
-            {
-                "menuIcon": true,
-                "type": "png",
-                "name": "IMAGE_MENU_ICON_BEER",
-                "file": "images/glyphicons_274_beer.png"
-            }
-        ]
-    }
+  "versionLabel": "1.0",
+  "uuid": "1c51c9c3-d1e4-4ba6-8cc9-e0e24713152b",
+  "appKeys": {
+    "gender": 0,
+    "weight": 1,
+    "signedEULA": 2
+  },
+  "longName": "SoberUp",
+  "capabilities": [
+    "configurable"
+  ],
+  "shortName": "SoberUp",
+  "companyName": "AlumniLikeTurtles",
+  "watchapp": {
+    "watchface": false
+  },
+  "resources": {
+    "media": [
+      {
+        "type": "png",
+        "name": "IMAGE_BOTTOM_ICON_STOPWATCH",
+        "file": "images/glyphicons_055_stopwatch.png"
+      },
+      {
+        "type": "png",
+        "name": "IMAGE_ACTION_ICON_PLUS",
+        "file": "images/action_icon_plus.png"
+      },
+      {
+        "type": "png",
+        "name": "IMAGE_ACTION_ICON_MINUS",
+        "file": "images/action_icon_minus.png"
+      },
+      {
+        "menuIcon": true,
+        "type": "png",
+        "name": "IMAGE_MENU_ICON_BEER",
+        "file": "images/glyphicons_274_beer.png"
+      }
+    ]
+  },
+  "targetPlatforms": [
+    "aplite",
+    "basalt",
+    "chalk"
+  ],
+  "sdkVersion": "3"
 }
