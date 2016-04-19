@@ -37,7 +37,7 @@ float ebac_calculate_using_gender_and_weight(Gender gender, Weight weight, Weigh
                             drinking_period_hours);
 }
 
-time_t ebac_drinking_period_seconds_from_ebac_and_gender(float ebac, Gender gender) {
+time_t ebac_drinking_period_seconds_to_zero_ebac_from_ebac_and_gender(float ebac, Gender gender) {
   const float metabolism = prv_metabolism_from_gender(gender);
   float drinking_period_hours = ebac / metabolism;
   drinking_period_hours = (float)CLIP_MIN(drinking_period_hours, 0.0);

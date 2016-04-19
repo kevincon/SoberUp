@@ -3,7 +3,7 @@
 // This is from http://forums.getpebble.com/discussion/8280/displaying-the-value-of-a-floating-point
 // because Pebble doesn't support %f in snprintf.
 void floatToString(char *buffer, int bufferSize, double number) {
-  char decimalBuffer[7];
+  char decimalBuffer[7] = {0};
 
   snprintf(buffer, bufferSize, "%d", (int) number);
   strcat(buffer, ".");
