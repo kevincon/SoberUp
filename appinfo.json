@@ -24,18 +24,18 @@
       },
       {
         "type": "png",
-        "name": "IMAGE_ACTION_ICON_PLUS",
+        "name": "ACTION_BAR_PLUS_ICON",
         "file": "images/action_icon_plus.png"
       },
       {
         "type": "png",
-        "name": "IMAGE_ACTION_ICON_MINUS",
+        "name": "ACTION_BAR_MINUS_ICON",
         "file": "images/action_icon_minus.png"
       },
       {
         "menuIcon": true,
         "type": "png",
-        "name": "IMAGE_MENU_ICON_BEER",
+        "name": "BEER_ICON",
         "file": "images/glyphicons_274_beer.png"
       }
     ]
