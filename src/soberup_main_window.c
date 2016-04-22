@@ -7,7 +7,11 @@
 
 #define MAX_DRINKS_COUNTED (99)
 #define TEXT_LAYER_STRING_BUFFER_SIZE (50)
+#define TEXT_LAYER_BACKGROUND_COLOR (GColorClear)
+#define TEXT_LAYER_OVERFLOW_MODE (GTextOverflowModeTrailingEllipsis)
+#define CLIP_IN_GRECT_ALIGN (false)
 #define DRINK_COUNTER_TEXT_PREFIX "Std. drinks:   "
+#define EBAC_TEXT_SUFFIX " eBAC"
 
 typedef struct SoberUpMainWindow {
   Window *window;
@@ -29,6 +33,7 @@ typedef struct SoberUpMainWindow {
   } top_area;
 
   struct {
+    Layer *body_area_layer;
     TextLayer *ebac_text_layer;
     char ebac_text_buffer[TEXT_LAYER_STRING_BUFFER_SIZE];
     TextLayer *ebac_subtitle_label_text_layer;
@@ -74,7 +79,7 @@ static void prv_update_text_layers(SoberUpMainWindow *data) {
   char ebac_string[TEXT_LAYER_STRING_BUFFER_SIZE] = {0};
   floatToString(ebac_string, TEXT_LAYER_STRING_BUFFER_SIZE, ebac);
   char *ebac_text_buffer = data->body_area.ebac_text_buffer;
-  snprintf(ebac_text_buffer, TEXT_LAYER_STRING_BUFFER_SIZE, "%s eBAC", ebac_string);
+  snprintf(ebac_text_buffer, TEXT_LAYER_STRING_BUFFER_SIZE, "%s"EBAC_TEXT_SUFFIX, ebac_string);
   text_layer_set_text(data->body_area.ebac_text_layer, ebac_text_buffer);
 
   // Update the alcohol effects text
@@ -165,14 +170,11 @@ static void prv_click_config_provider(void *context) {
 }
 
 static Layer *prv_layout_top_area(SoberUpMainWindow *data, int16_t available_width) {
-  const bool clip_in_grect_align = false;
-
   // Create a bitmap for the beer icon and get the bounds of it for computing the icon's frame
   data->top_area.beer_icon = gbitmap_create_with_resource(RESOURCE_ID_BEER_ICON);
   GBitmap *beer_icon = data->top_area.beer_icon;
   GRect beer_icon_layer_frame = gbitmap_get_bounds(beer_icon);
 
-  const GTextOverflowMode text_overflow_mode = GTextOverflowModeTrailingEllipsis;
   const GTextAlignment text_alignment = GTextAlignmentRight;
 
   // Compute the frame of the drink counter text
@@ -183,7 +185,7 @@ static Layer *prv_layout_top_area(SoberUpMainWindow *data, int16_t available_wid
   };
   const GSize drink_counter_text_size =
     graphics_text_layout_get_content_size(DRINK_COUNTER_TEXT_PREFIX"00", drink_counter_text_font,
-                                          drink_counter_text_layer_frame, text_overflow_mode,
+                                          drink_counter_text_layer_frame, TEXT_LAYER_OVERFLOW_MODE,
                                           text_alignment);
   // We give the drink counter text frame the remaining available width after taking into account
   // the beer icon width
@@ -198,16 +200,16 @@ static Layer *prv_layout_top_area(SoberUpMainWindow *data, int16_t available_wid
   Layer *container_layer = layer_create(container_frame);
 
   // Align the beer icon layer to the center-right of the container
-  grect_align(&beer_icon_layer_frame, &container_frame, GAlignRight, clip_in_grect_align);
+  grect_align(&beer_icon_layer_frame, &container_frame, GAlignRight, CLIP_IN_GRECT_ALIGN);
 
   // Align the drink counter text to the center-left of the container
   // Note that we then right-align the drink counter text so it is closer to the beer icon
-  grect_align(&drink_counter_text_layer_frame, &container_frame, GAlignLeft, clip_in_grect_align);
+  grect_align(&drink_counter_text_layer_frame, &container_frame, GAlignLeft, CLIP_IN_GRECT_ALIGN);
 
   data->top_area.drink_counter_text_layer = text_layer_create(drink_counter_text_layer_frame);
   TextLayer *drink_counter_text_layer = data->top_area.drink_counter_text_layer;
   text_layer_set_font(drink_counter_text_layer, drink_counter_text_font);
-  text_layer_set_background_color(drink_counter_text_layer, GColorClear);
+  text_layer_set_background_color(drink_counter_text_layer, TEXT_LAYER_BACKGROUND_COLOR);
   text_layer_set_text_alignment(drink_counter_text_layer, text_alignment);
   layer_add_child(container_layer, text_layer_get_layer(drink_counter_text_layer));
 
@@ -215,6 +217,75 @@ static Layer *prv_layout_top_area(SoberUpMainWindow *data, int16_t available_wid
   BitmapLayer *beer_icon_layer = data->top_area.beer_icon_layer;
   bitmap_layer_set_bitmap(beer_icon_layer, beer_icon);
   layer_add_child(container_layer, bitmap_layer_get_layer(beer_icon_layer));
+
+  return container_layer;
+}
+
+static Layer *prv_layout_body_area(SoberUpMainWindow *data, int16_t available_width) {
+  const GTextAlignment text_alignment = GTextAlignmentCenter;
+
+  // Compute the frame of the ebac text
+  const GFont ebac_text_font = fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD);
+  // We cheat a little here; we restrict the ebac text to one line so we can just use the height of
+  // the font
+  const int16_t ebac_text_font_height = 28;
+  const GRect ebac_text_layer_frame = (GRect) {
+    .size = GSize(available_width, ebac_text_font_height),
+  };
+
+  // Compute the frame of the ebac label text
+  const GFont ebac_subtitle_label_text_font = fonts_get_system_font(FONT_KEY_GOTHIC_14);
+  // We cheat a little here; we restrict the ebac subtitle label text to one line so we can just use
+  // the height of the font
+  const int16_t ebac_subtitle_label_text_font_height = 14;
+  const char *ebac_subtitle_label_text = "(Estimated BAC)";
+  const GRect ebac_subtitle_label_text_layer_frame = (GRect) {
+    .origin = GPoint(0, ebac_text_layer_frame.origin.y + ebac_text_layer_frame.size.h),
+    .size = GSize(available_width, ebac_subtitle_label_text_font_height),
+  };
+
+  // Compute the frame of the alcohol effects text
+  const GFont alcohol_effects_text_font = fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD);
+  // We cheat a little here; we restrict the alcohol effects text to two lines so we can just use
+  // the height of the font times two
+  const int16_t alcohol_effects_text_font_height = 18 * 2;
+  const GRect alcohol_effects_text_layer_frame = (GRect) {
+    .origin = GPoint(0, ebac_subtitle_label_text_layer_frame.origin.y +
+      ebac_subtitle_label_text_layer_frame.size.h),
+    .size = GSize(available_width, alcohol_effects_text_font_height)
+  };
+
+  // Compute the overall container frame and create the container layer
+  const int16_t overall_height =
+    (int16_t)(ebac_text_layer_frame.size.h + ebac_subtitle_label_text_layer_frame.size.h +
+                alcohol_effects_text_layer_frame.size.h);
+  const GRect container_frame = (GRect) {
+    .size = GSize(available_width, overall_height),
+  };
+  Layer *container_layer = layer_create(container_frame);
+
+  data->body_area.ebac_text_layer = text_layer_create(ebac_text_layer_frame);
+  TextLayer *ebac_text_layer = data->body_area.ebac_text_layer;
+  text_layer_set_font(ebac_text_layer, ebac_text_font);
+  text_layer_set_background_color(ebac_text_layer, TEXT_LAYER_BACKGROUND_COLOR);
+  text_layer_set_text_alignment(ebac_text_layer, text_alignment);
+  layer_add_child(container_layer, text_layer_get_layer(ebac_text_layer));
+
+  data->body_area.ebac_subtitle_label_text_layer =
+    text_layer_create(ebac_subtitle_label_text_layer_frame);
+  TextLayer *ebac_subtitle_label_text_layer = data->body_area.ebac_subtitle_label_text_layer;
+  text_layer_set_font(ebac_subtitle_label_text_layer, ebac_subtitle_label_text_font);
+  text_layer_set_background_color(ebac_subtitle_label_text_layer, TEXT_LAYER_BACKGROUND_COLOR);
+  text_layer_set_text_alignment(ebac_subtitle_label_text_layer, text_alignment);
+  text_layer_set_text(ebac_subtitle_label_text_layer, ebac_subtitle_label_text);
+  layer_add_child(container_layer, text_layer_get_layer(ebac_subtitle_label_text_layer));
+
+  data->body_area.alcohol_effects_text_layer = text_layer_create(alcohol_effects_text_layer_frame);
+  TextLayer *alcohol_effects_text_layer = data->body_area.alcohol_effects_text_layer;
+  text_layer_set_font(alcohol_effects_text_layer, alcohol_effects_text_font);
+  text_layer_set_background_color(alcohol_effects_text_layer, TEXT_LAYER_BACKGROUND_COLOR);
+  text_layer_set_text_alignment(alcohol_effects_text_layer, text_alignment);
+  layer_add_child(container_layer, text_layer_get_layer(alcohol_effects_text_layer));
 
   return container_layer;
 }
@@ -253,43 +324,24 @@ static void prv_window_load(Window *window) {
   Layer *top_area_layer = prv_layout_top_area(data, content_bounds.size.w);
   layer_add_child(window_root_layer, top_area_layer);
   GRect top_area_layer_frame = layer_get_bounds(top_area_layer);
-  grect_align(&top_area_layer_frame, &content_bounds, GAlignTop, true /* clip */);
+  grect_align(&top_area_layer_frame, &content_bounds, GAlignTop, CLIP_IN_GRECT_ALIGN);
   layer_set_frame(top_area_layer, top_area_layer_frame);
   data->top_area.top_area_layer = top_area_layer;
 
-  // TODO make work on both rect and round
-  data->body_area.ebac_text_layer = text_layer_create(GRect(0, 13 + 35, content_bounds.size.w, 60));
-  TextLayer *ebac_text_layer = data->body_area.ebac_text_layer;
-  text_layer_set_font(ebac_text_layer, fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD));
-  text_layer_set_background_color(ebac_text_layer, GColorClear);
-  text_layer_set_text_alignment(ebac_text_layer, GTextAlignmentCenter);
-  layer_add_child(window_root_layer, text_layer_get_layer(ebac_text_layer));
-
-  // TODO make work on both rect and round
-  data->body_area.ebac_subtitle_label_text_layer = text_layer_create(GRect(0, 13 + 35 + 28,
-                                                                      content_bounds.size.w, 60));
-  TextLayer *ebac_subtitle_label_text_layer = data->body_area.ebac_subtitle_label_text_layer;
-  text_layer_set_font(ebac_subtitle_label_text_layer, fonts_get_system_font(FONT_KEY_GOTHIC_14));
-  text_layer_set_background_color(ebac_subtitle_label_text_layer, GColorClear);
-  text_layer_set_text_alignment(ebac_subtitle_label_text_layer, GTextAlignmentCenter);
-  text_layer_set_text(ebac_subtitle_label_text_layer, "(Estimated BAC)");
-  layer_add_child(window_root_layer, text_layer_get_layer(ebac_subtitle_label_text_layer));
-
-  // TODO make work on both rect and round
-  data->body_area.alcohol_effects_text_layer = text_layer_create(GRect(0, 13 + 35 + 28 + 12,
-                                                                  content_bounds.size.w, 60));
-  TextLayer *alcohol_effects_text_layer = data->body_area.alcohol_effects_text_layer;
-  text_layer_set_font(alcohol_effects_text_layer, fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD));
-  text_layer_set_background_color(alcohol_effects_text_layer, GColorClear);
-  text_layer_set_text_alignment(alcohol_effects_text_layer, GTextAlignmentCenter);
-  layer_add_child(window_root_layer, text_layer_get_layer(alcohol_effects_text_layer));
+  // Layout the body area and align it at the center of the content area
+  Layer *body_area_layer = prv_layout_body_area(data, content_bounds.size.w);
+  layer_add_child(window_root_layer, body_area_layer);
+  GRect body_area_layer_frame = layer_get_bounds(body_area_layer);
+  grect_align(&body_area_layer_frame, &content_bounds, GAlignCenter, CLIP_IN_GRECT_ALIGN);
+  layer_set_frame(body_area_layer, body_area_layer_frame);
+  data->body_area.body_area_layer = body_area_layer;
 
   // TODO make work on both rect and round
   data->bottom_area.countdown_label_text_layer = text_layer_create(
     GRect(0, content_bounds.size.h - 27 - 3, content_bounds.size.w, 27));
   TextLayer *countdown_label_text_layer = data->bottom_area.countdown_label_text_layer;
   text_layer_set_font(countdown_label_text_layer, fonts_get_system_font(FONT_KEY_GOTHIC_14));
-  text_layer_set_background_color(countdown_label_text_layer, GColorClear);
+  text_layer_set_background_color(countdown_label_text_layer, TEXT_LAYER_BACKGROUND_COLOR);
   text_layer_set_text(countdown_label_text_layer, "Est. time to 0 BAC:");
   text_layer_set_text_alignment(countdown_label_text_layer, GTextAlignmentCenter);
   layer_add_child(window_root_layer, text_layer_get_layer(countdown_label_text_layer));
@@ -299,7 +351,7 @@ static void prv_window_load(Window *window) {
     GRect(0, content_bounds.size.h - 27 - 3 + 9, content_bounds.size.w, 27));
   TextLayer *countdown_text_layer = data->bottom_area.countdown_text_layer;
   text_layer_set_font(countdown_text_layer, fonts_get_system_font(FONT_KEY_GOTHIC_18));
-  text_layer_set_background_color(countdown_text_layer, GColorClear);
+  text_layer_set_background_color(countdown_text_layer, TEXT_LAYER_BACKGROUND_COLOR);
   text_layer_set_text(countdown_text_layer, "OO H 00 M");
   text_layer_set_text_alignment(countdown_text_layer, GTextAlignmentCenter);
   layer_add_child(window_root_layer, text_layer_get_layer(countdown_text_layer));
@@ -319,7 +371,11 @@ static void prv_window_unload(Window *window) {
     text_layer_destroy(data->top_area.drink_counter_text_layer);
     layer_destroy(data->top_area.top_area_layer);
 
-    // TODO destroy body area stuff
+    // Body area
+    text_layer_destroy(data->body_area.ebac_text_layer);
+    text_layer_destroy(data->body_area.ebac_subtitle_label_text_layer);
+    text_layer_destroy(data->body_area.alcohol_effects_text_layer);
+    layer_destroy(data->body_area.body_area_layer);
 
     // TODO destroy bottom area stuff
 
