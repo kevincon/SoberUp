@@ -41,8 +41,7 @@ typedef struct SoberUpMainWindow {
   } body_area;
 
   struct {
-    BitmapLayer *stopwatch_icon_layer;
-    GBitmap *stopwatch_icon;
+    Layer *bottom_area_layer;
     TextLayer *countdown_label_text_layer;
     TextLayer *countdown_text_layer;
     char countdown_text_buffer[TEXT_LAYER_STRING_BUFFER_SIZE];
@@ -238,7 +237,6 @@ static Layer *prv_layout_body_area(SoberUpMainWindow *data, int16_t available_wi
   // We cheat a little here; we restrict the ebac subtitle label text to one line so we can just use
   // the height of the font
   const int16_t ebac_subtitle_label_text_font_height = 14;
-  const char *ebac_subtitle_label_text = "(Estimated BAC)";
   const GRect ebac_subtitle_label_text_layer_frame = (GRect) {
     .origin = GPoint(0, ebac_text_layer_frame.origin.y + ebac_text_layer_frame.size.h),
     .size = GSize(available_width, ebac_subtitle_label_text_font_height),
@@ -277,7 +275,7 @@ static Layer *prv_layout_body_area(SoberUpMainWindow *data, int16_t available_wi
   text_layer_set_font(ebac_subtitle_label_text_layer, ebac_subtitle_label_text_font);
   text_layer_set_background_color(ebac_subtitle_label_text_layer, TEXT_LAYER_BACKGROUND_COLOR);
   text_layer_set_text_alignment(ebac_subtitle_label_text_layer, text_alignment);
-  text_layer_set_text(ebac_subtitle_label_text_layer, ebac_subtitle_label_text);
+  text_layer_set_text(ebac_subtitle_label_text_layer, "(Estimated BAC)");
   layer_add_child(container_layer, text_layer_get_layer(ebac_subtitle_label_text_layer));
 
   data->body_area.alcohol_effects_text_layer = text_layer_create(alcohol_effects_text_layer_frame);
@@ -286,6 +284,57 @@ static Layer *prv_layout_body_area(SoberUpMainWindow *data, int16_t available_wi
   text_layer_set_background_color(alcohol_effects_text_layer, TEXT_LAYER_BACKGROUND_COLOR);
   text_layer_set_text_alignment(alcohol_effects_text_layer, text_alignment);
   layer_add_child(container_layer, text_layer_get_layer(alcohol_effects_text_layer));
+
+  return container_layer;
+}
+
+static Layer *prv_layout_bottom_area(SoberUpMainWindow *data, int16_t available_width) {
+  const GTextAlignment text_alignment = GTextAlignmentCenter;
+
+  // Compute the frame of the countdown label text
+  const GFont countdown_label_text_font = fonts_get_system_font(FONT_KEY_GOTHIC_14);
+  // We cheat a little here; we restrict the countdown label text to one line so we can just use the
+  // height of the font
+  const int16_t countdown_label_text_font_height = 14;
+  const GRect countdown_label_text_layer_frame = (GRect) {
+    .size = GSize(available_width, countdown_label_text_font_height),
+  };
+
+  // Compute the frame of the countdown text
+  const GFont countdown_text_font = fonts_get_system_font(FONT_KEY_GOTHIC_18);
+  // We cheat a little here; we restrict the countdown text to one line so we can just use
+  // the height of the font
+  const int16_t countdown_text_font_height = 18;
+  const GRect countdown_text_layer_frame = (GRect) {
+    .origin = GPoint(0, countdown_label_text_layer_frame.origin.y +
+      countdown_label_text_layer_frame.size.h),
+    .size = GSize(available_width, countdown_text_font_height),
+  };
+
+  // Compute the overall container frame and create the container layer
+  const int16_t overall_height =
+    (int16_t)(countdown_label_text_layer_frame.size.h + countdown_text_layer_frame.size.h);
+  const GRect container_frame = (GRect) {
+    .size = GSize(available_width, overall_height),
+  };
+  Layer *container_layer = layer_create(container_frame);
+
+  data->bottom_area.countdown_label_text_layer =
+    text_layer_create(countdown_label_text_layer_frame);
+  TextLayer *countdown_label_text_layer = data->bottom_area.countdown_label_text_layer;
+  text_layer_set_font(countdown_label_text_layer, countdown_label_text_font);
+  text_layer_set_background_color(countdown_label_text_layer, TEXT_LAYER_BACKGROUND_COLOR);
+  text_layer_set_text(countdown_label_text_layer, "Est. time to 0 BAC:");
+  text_layer_set_text_alignment(countdown_label_text_layer, text_alignment);
+  layer_add_child(container_layer, text_layer_get_layer(countdown_label_text_layer));
+
+  data->bottom_area.countdown_text_layer = text_layer_create(countdown_text_layer_frame);
+  TextLayer *countdown_text_layer = data->bottom_area.countdown_text_layer;
+  text_layer_set_font(countdown_text_layer, countdown_text_font);
+  text_layer_set_background_color(countdown_text_layer, TEXT_LAYER_BACKGROUND_COLOR);
+  text_layer_set_text(countdown_text_layer, "OO H 00 M");
+  text_layer_set_text_alignment(countdown_text_layer, text_alignment);
+  layer_add_child(container_layer, text_layer_get_layer(countdown_text_layer));
 
   return container_layer;
 }
@@ -316,9 +365,12 @@ static void prv_window_load(Window *window) {
   status_bar_layer_set_colors(status_bar_layer, GColorBlack, GColorWhite);
   layer_add_child(window_root_layer, status_bar_layer_get_layer(status_bar_layer));
 
+  const int16_t bottom_inset = PBL_IF_RECT_ELSE(5, 15);
+  const int16_t left_inset = PBL_IF_RECT_ELSE(0, 25);
   const GRect content_bounds =
     grect_inset(window_root_layer_bounds,
-                GEdgeInsets(STATUS_BAR_LAYER_HEIGHT, ACTION_BAR_WIDTH, 0, 0));
+                GEdgeInsets(STATUS_BAR_LAYER_HEIGHT, ACTION_BAR_WIDTH,
+                            bottom_inset, left_inset));
 
   // Layout the top area and align it at the top center of the content area
   Layer *top_area_layer = prv_layout_top_area(data, content_bounds.size.w);
@@ -336,25 +388,13 @@ static void prv_window_load(Window *window) {
   layer_set_frame(body_area_layer, body_area_layer_frame);
   data->body_area.body_area_layer = body_area_layer;
 
-  // TODO make work on both rect and round
-  data->bottom_area.countdown_label_text_layer = text_layer_create(
-    GRect(0, content_bounds.size.h - 27 - 3, content_bounds.size.w, 27));
-  TextLayer *countdown_label_text_layer = data->bottom_area.countdown_label_text_layer;
-  text_layer_set_font(countdown_label_text_layer, fonts_get_system_font(FONT_KEY_GOTHIC_14));
-  text_layer_set_background_color(countdown_label_text_layer, TEXT_LAYER_BACKGROUND_COLOR);
-  text_layer_set_text(countdown_label_text_layer, "Est. time to 0 BAC:");
-  text_layer_set_text_alignment(countdown_label_text_layer, GTextAlignmentCenter);
-  layer_add_child(window_root_layer, text_layer_get_layer(countdown_label_text_layer));
-
-  // TODO make work on both rect and round
-  data->bottom_area.countdown_text_layer = text_layer_create(
-    GRect(0, content_bounds.size.h - 27 - 3 + 9, content_bounds.size.w, 27));
-  TextLayer *countdown_text_layer = data->bottom_area.countdown_text_layer;
-  text_layer_set_font(countdown_text_layer, fonts_get_system_font(FONT_KEY_GOTHIC_18));
-  text_layer_set_background_color(countdown_text_layer, TEXT_LAYER_BACKGROUND_COLOR);
-  text_layer_set_text(countdown_text_layer, "OO H 00 M");
-  text_layer_set_text_alignment(countdown_text_layer, GTextAlignmentCenter);
-  layer_add_child(window_root_layer, text_layer_get_layer(countdown_text_layer));
+  // Layout the bottom area and align it at the bottom of the content area
+  Layer *bottom_area_layer = prv_layout_bottom_area(data, content_bounds.size.w);
+  layer_add_child(window_root_layer, bottom_area_layer);
+  GRect bottom_area_layer_frame = layer_get_bounds(bottom_area_layer);
+  grect_align(&bottom_area_layer_frame, &content_bounds, GAlignBottom, CLIP_IN_GRECT_ALIGN);
+  layer_set_frame(bottom_area_layer, bottom_area_layer_frame);
+  data->bottom_area.bottom_area_layer = bottom_area_layer;
 
   prv_update_text_layers(data);
 }
@@ -377,7 +417,10 @@ static void prv_window_unload(Window *window) {
     text_layer_destroy(data->body_area.alcohol_effects_text_layer);
     layer_destroy(data->body_area.body_area_layer);
 
-    // TODO destroy bottom area stuff
+    // Bottom area
+    text_layer_destroy(data->bottom_area.countdown_label_text_layer);
+    text_layer_destroy(data->bottom_area.countdown_text_layer);
+    layer_destroy(data->bottom_area.bottom_area_layer);
 
     // Action bar
     gbitmap_destroy(data->action_bar.plus_icon);
