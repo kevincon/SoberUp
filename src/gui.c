@@ -2,6 +2,7 @@
 #include "alert.h"
 
 static Window *window;
+static StatusBarLayer *status_bar;
 
 /* Action bar */
 static ActionBarLayer *action_bar;
@@ -42,6 +43,16 @@ static void unload_action_bar() {
     action_bar_layer_destroy(action_bar);
 }
 
+static void load_status_bar() {
+    Layer *root_layer = window_get_root_layer(window);
+    status_bar = status_bar_layer_create();
+    layer_add_child(root_layer, status_bar_layer_get_layer(status_bar));
+}
+
+static void unload_status_bar() {
+    status_bar_layer_destroy(status_bar);
+}
+
 static void load_top_bar() {
     Layer *root_layer = window_get_root_layer(window);
     const int16_t width = layer_get_frame(root_layer).size.w - ACTION_BAR_WIDTH - 6;
@@ -56,8 +67,9 @@ static void load_top_bar() {
     layer_add_child(top_bar, text_layer_get_layer(header_text_layer));
     
     menu_icon_beer = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_MENU_ICON_BEER);
-    const int16_t beer_width = menu_icon_beer->bounds.size.w;
-    const int16_t beer_height = menu_icon_beer->bounds.size.h;
+    const GRect beer_bounds = gbitmap_get_bounds(menu_icon_beer);
+    const int16_t beer_width = beer_bounds.size.w;
+    const int16_t beer_height = beer_bounds.size.h;
     beer_layer = bitmap_layer_create(GRect(width - beer_width, 0, beer_width, beer_height));
     bitmap_layer_set_bitmap(beer_layer, menu_icon_beer);
     bitmap_layer_set_alignment(beer_layer, GAlignCenter);
@@ -116,8 +128,9 @@ static void load_bottom_bar() {
     const int16_t height = layer_get_frame(root_layer).size.h;
 
     bottom_icon_stopwatch = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_BOTTOM_ICON_STOPWATCH);
-    const int16_t stopwatch_width = bottom_icon_stopwatch->bounds.size.w;
-    const int16_t stopwatch_height = bottom_icon_stopwatch->bounds.size.h;
+    const GRect stopwatch_bounds = gbitmap_get_bounds(bottom_icon_stopwatch);
+    const int16_t stopwatch_width = stopwatch_bounds.size.w;
+    const int16_t stopwatch_height = stopwatch_bounds.size.h;
 
     bottom_bar = layer_create(GRect(0, height - stopwatch_height - 3, width, stopwatch_height));
     layer_add_child(root_layer, bottom_bar);
@@ -153,7 +166,8 @@ void window_load(Window *me) {
     load_action_bar();
     load_top_bar();
     load_body();
-    load_bottom_bar();   
+    load_bottom_bar();
+    load_status_bar(); 
 }
 
 void window_unload(Window *window) {
@@ -161,6 +175,7 @@ void window_unload(Window *window) {
     unload_top_bar();
     unload_body();
     unload_bottom_bar();
+    unload_status_bar();
     gui_hide_alert();
 }
 
