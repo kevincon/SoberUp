@@ -1,6 +1,6 @@
 {
-  "version": "1.0.0",
-  "author": "AlumniLikeTurtles",
+  "version": "2.0.0",
+  "author": "Kevin Conley",
   "private": true,
   "dependencies": {
     "pebble-clay": "^1.0.4"
