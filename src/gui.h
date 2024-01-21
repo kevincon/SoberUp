@@ -7,6 +7,7 @@ void gui_update_drink_counter(char *drink_counter_text);
 void gui_update_alcohol_effects(const char *alcohol_effects_text);
 
 void gui_setup_buttons(ClickConfigProvider click_config);
+void gui_disable_buttons(void);
 
 void gui_show_alert();
 void gui_hide_alert();

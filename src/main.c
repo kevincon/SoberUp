@@ -169,11 +169,14 @@ static void in_received_handler(DictionaryIterator *iter, void *context) {
         if (signed_eula) {
             gui_hide_alert();
             gui_setup_buttons(click_config_provider);
+        } else {
+            gui_show_alert();
+            gui_disable_buttons();
         }
     }
 
     if (user_data_gender_tuple) {
-        const uint8_t gender = user_data_gender_tuple->value->uint8;
+        const uint8_t gender = (strncmp(user_data_gender_tuple->value->cstring, "female", user_data_gender_tuple->length) == 0) ? 1 : 0;
         if (gender == 0) {
             // Female
             ebac_params.body_water = 0.49;

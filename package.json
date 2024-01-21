@@ -1,0 +1,61 @@
+{
+  "version": "2.0.0",
+  "author": "Kevin Conley",
+  "private": true,
+  "dependencies": {
+    "pebble-clay": "^1.0.4"
+  },
+  "keywords": [
+    "pebble-app"
+  ],
+  "pebble": {
+    "sdkVersion": "3",
+    "resources": {
+      "media": [
+        {
+          "type": "png",
+          "name": "IMAGE_BOTTOM_ICON_STOPWATCH",
+          "file": "images/glyphicons_055_stopwatch.png"
+        },
+        {
+          "type": "png",
+          "name": "IMAGE_ACTION_ICON_PLUS",
+          "file": "images/action_icon_plus.png"
+        },
+        {
+          "type": "png",
+          "name": "IMAGE_ACTION_ICON_MINUS",
+          "file": "images/action_icon_minus.png"
+        },
+        {
+          "menuIcon": true,
+          "type": "png",
+          "name": "IMAGE_MENU_ICON_BEER",
+          "file": "images/glyphicons_274_beer.png"
+        }
+      ]
+    },
+    "projectType": "native",
+    "uuid": "1c51c9c3-d1e4-4ba6-8cc9-e0e24713152b",
+    "messageKeys": {
+      "gender": 0,
+      "weight": 1,
+      "signedEULA": 2
+    },
+    "enableMultiJS": true,
+    "displayName": "SoberUp",
+    "watchapp": {
+      "onlyShownOnCommunication": false,
+      "hiddenApp": false,
+      "watchface": false
+    },
+    "targetPlatforms": [
+      "aplite",
+      "basalt"
+    ],
+    "capabilities": [
+      "configurable"
+    ]
+  },
+  "name": "soberup"
+}

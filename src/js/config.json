@@ -1,0 +1,65 @@
+[
+    { 
+      "type": "heading", 
+      "defaultValue": "SoberUp Configuration",
+      "size": 1
+    },
+    {
+      "type": "section",
+      "items": [
+        {
+          "type": "heading",
+          "defaultValue": "Terms and Conditions"
+        },
+        {
+          "type": "text",
+          "defaultValue": "<h4>I. Application of Terms and Conditions</h4><p>The developers and owners of the SoberUp application are Kevin D. Conley of Rancho Cordova, CA, Jeff Kiske of Saint Louis, MO, Matthew Hale of Jacksonville, FL, and Evan Benshetler of Brooklyn, NY who are hereinafter jointly referenced in these Terms and Conditions for convenience purposes as \"AlumniLikeTurtles\".  User acknowledges that User shall also release, hold harmless and indemnify Pebble Technology Corp. to the same extent as AlumniLikeTurtles is released, held harmless and indemnified throughout these Terms and Conditions.</p><h4>II. Novelty and Entertainment Use Only</h4><p>User agrees that SoberUp is an application for novelty and entertainment use only and will not be used in any manner to determine if user or any other person is legally intoxicated or may be impaired to the extent that the user cannot safely operate an automobile, vehicle, bicycle, motorcycle or any other type of machinery or device.  AlumniLikeTurtles urges the user to never become intoxicated or drink to excess, and further urges anyone under the legal age to not consume alcohol at all.</p><h4>III. Government Warning</h4><p>According to the Surgeon General, women should not drink alcohol beverages during pregnancy because of the risk of birth defects.  Consumption of alcoholic beverages impairs your ability to drive a car or operate machinery and may cause health problems.</p><h4>IV. Disclaimers</h4><p>1. AlumniLikeTurtles and any and all manufacturers, retailers, distributors and sellers of the Pebble Watch make no warranties, express or implied, as to the ability of the application, SoberUp, to determine whether a user of this application is legally intoxicated, and AlumniLikeTurtles expressly disclaims any liability for incidental, special, or consequential damages of any nature.</p><p>2. Decisions and/or actions based upon the reading of this application shall be entirely at the user’s own risk.</p><p>3. AlumniLikeTurtles and any and all manufacturers, retailers, distributors and sellers of the the Pebble Watch make no warranties, express or implied, that any modification or adjustment of the application, SoberUp, is a legal protector or evidence or defense against any police or public procedure or judicial or investigative proceedings in any jurisdiction.</p><p>4. AlumniLikeTurtles and any and all manufacturers, retailers, or sellers of the Pebble Watch assume no responsibility for users who test negative and later show that they are under the influence of alcohol or are proven to be intoxicated by alcohol.</p><h4>V. Exclusions, Limitations, and Disclaimers</h4><p>1. AlumniLikeTurtles makes no warranties, express or implied, as to the ability of SoberUp to determine whether, or the extent to which, a User’s mental or physical functioning, or judgment, may be impaired, including whether the User is intoxicated under any definition of that word. AlumniLikeTurtles expressly disclaims any liability for direct, indirect, incidental, special, or consequential damages of any nature under any legal theory. Any act or failure to act based on a reading from SoberUp shall be at the User’s own risk or upon those who rely upon such reading. AlumniLikeTurtles assumes no responsibility for consequences to, or of, Users who use SoberUp and later are shown to have been under the influence of alcohol or have had their judgment or any mental or bodily function impaired by alcohol. Correlation between number of standard drinks consumed and blood alcohol concentration depends on many variables, including health conditions of the User. A low BAC reading does not mean that the User’s physical or mental performance or judgment can respond to an emergency. The concentration of alcohol in the blood of a User cannot be exactly determined by using a mathematical formula. AlumniLikeTurtles does not warrant that the operation of SoberUp will be error-free. AlumniLikeTurtles is not responsible for any consequences arising from the failure to follow instructions related to the use of SoberUp. Because of the variables involved in the dissipation of alcohol consumption, individual metabolism, and self-administration, the User and associated third parties agree: (1) not to hold AlumniLikeTurtles or its agent and representatives, the manufacturer, dealer, wholesaler, or distributor, responsible for the consequences of any decision, based on the use of SoberUp to operate a vehicle, boat, or aircraft or other equipment; and (2) to hold AlumniLikeTurtles or its agent and representatives harmless from the claims of others arising out of any such decision.</p><p>2. TO THE EXTENT PERMITTED BY THE LAW, THIS WARRANTY AND THE REMEDIES SET FORTH ABOVE ARE EXCLUSIVE AND IN LIEU OF ALL OTHER WARRANTIES, REMEDIES AND CONDITIONS, WHETHER ORAL OR WRITTEN, STATUTORY, EXPRESS OR IMPLIED. AS PERMITTED BY APPLICABLE LAW, ALUMNILIKETURTLES SPECIFICALLY DISCLAIMS ANY AND ALL STATUTORY OR IMPLIED WARRANTIES OR MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE AND WARRANTIES AGAINST HIDDEN OR LATENT DEFECTS. IF ALUMNILIKETURTLES CANNOT LAWFULLY DISCLAIM STATUTORY OR IMPLIED WARRANTIES, THEN TO THE EXTENT PERMITTED BY LAW, ALL SUCH WARRANTIES SHALL BE LIMITED IN DURATION TO THE DURATION OF THE EXPRESS WARRANTY AND TO THE REPAIR OR REPLACEMENT SERVICE AS DETERMINED BY ALUMNILIKETURTLES IN ITS SOLE DISCRETION.</p><p>3. EXCEPT AS PROVIDED IN THIS WARRANTY, AND TO THE MAXIMUM EXTENT PERMITTED BY LAW, ALUMNILIKETURTLES IS NOT RESPONSIBLE FOR DIRECT, SPECIAL, INCIDENTAL, OR CONSEQUENTIAL DAMAGES UNDER ANY LEGAL THEORY, INCLUDING BUT NOT LIMITED TO: LOSS OR USE; LOSS OF REVENUE OR INCOME LOSS OF ACTUAL OR ANTICIPATED PROFITS (INCLUDING LOSS OF PROFITS FROM A CONTRACT), LOSS OF THE USE OF MONEY LOSS OF ANTICIPATED SAVINGS; LOSS OF BUSINESS; LOSS OF OPPORTUNITY; LOSS OF GOODWILL; OR LOSS OF REPUTATION. Some countries, states, and provinces do not allow the exclusion or limitation of incidental or consequential damages, or allow limitations on how long an implied warranty or condition may last, so the above limitations or exclusions may not apply to you. This warranty gives you specific legal rights, and you may also have other rights that vary by country, state, or province. This Limited Warranty is governed by and construed under the laws of the state of Texas, United States of America.</p>"
+        },
+        {
+          "type": "toggle",
+          "messageKey": "signedEULA",
+          "label": "Do you accept and agree to the above Terms and Conditions?",
+          "defaultValue": false,
+          "description": "You must accept/agree to the above Terms and Conditions by switching this toggle \"ON\" to use this app."
+        }
+      ]
+    },
+    {
+      "type": "section",
+      "items": [
+        {
+          "type": "heading",
+          "defaultValue": "Settings"
+        },
+        {
+          "type": "slider",
+          "messageKey": "weight",
+          "defaultValue": 150,
+          "label": "Weight (lbs)",
+          "min": 0,
+          "max": 500,
+          "step": 1
+        },
+        {
+          "type": "radiogroup",
+          "messageKey": "gender",
+          "label": "Gender",
+          "defaultValue": "male",
+          "options": [
+            { 
+              "label": "Male", 
+              "value": "male"
+            },
+            { 
+              "label": "Female", 
+              "value": "female"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "submit",
+      "defaultValue": "Save"
+    }
+]
