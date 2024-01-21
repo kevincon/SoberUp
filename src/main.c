@@ -173,7 +173,7 @@ static void in_received_handler(DictionaryIterator *iter, void *context) {
     }
 
     if (user_data_gender_tuple) {
-        const uint8_t gender = user_data_gender_tuple->value->uint8;
+        uint8_t gender = (strncmp(user_data_gender_tuple->value->cstring, "female", user_data_gender_tuple->length) == 0) ? 1 : 0;
         if (gender == 0) {
             // Female
             ebac_params.body_water = 0.49;

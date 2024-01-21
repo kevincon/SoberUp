@@ -2,7 +2,9 @@
   "version": "1.0.0",
   "author": "AlumniLikeTurtles",
   "private": true,
-  "dependencies": {},
+  "dependencies": {
+    "pebble-clay": "^1.0.4"
+  },
   "keywords": [
     "pebble-app"
   ],
@@ -37,10 +39,10 @@
     "uuid": "1c51c9c3-d1e4-4ba6-8cc9-e0e24713152b",
     "messageKeys": {
       "gender": 0,
-      "signedEULA": 2,
-      "weight": 1
+      "weight": 1,
+      "signedEULA": 2
     },
-    "enableMultiJS": false,
+    "enableMultiJS": true,
     "displayName": "SoberUp",
     "watchapp": {
       "onlyShownOnCommunication": false,
@@ -55,5 +57,5 @@
       "configurable"
     ]
   },
-  "name": "SoberUp"
+  "name": "soberup"
 }
