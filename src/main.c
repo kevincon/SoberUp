@@ -169,6 +169,9 @@ static void in_received_handler(DictionaryIterator *iter, void *context) {
         if (signed_eula) {
             gui_hide_alert();
             gui_setup_buttons(click_config_provider);
+        } else {
+            gui_show_alert();
+            gui_disable_buttons();
         }
     }
 

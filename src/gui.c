@@ -201,6 +201,12 @@ void gui_setup_buttons(ClickConfigProvider click_config) {
     action_bar_layer_set_click_config_provider(action_bar, click_config);
 }
 
+void gui_disable_buttons(void) {
+    action_bar_layer_set_icon(action_bar, BUTTON_ID_UP, NULL);
+    action_bar_layer_set_icon(action_bar, BUTTON_ID_DOWN, NULL);
+    action_bar_layer_set_click_config_provider(action_bar, NULL);
+}
+
 void gui_show_alert() {
     alert_show(window, "Alert", "Please configure SoberUp settings on your phone.", 0);
 }
