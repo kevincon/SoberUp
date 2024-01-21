@@ -18,10 +18,6 @@ With the [Pebble SDK installed](developer.getpebble.com), navigate to the root f
 
      pebble build
 
-### Companion website for configuring settings
-
-The code for the website that lets users configure their settings for SoberUp is not available publicly online, but you may contact [Jeff Kiske](https://github.com/jkiske) to request access.
-
 ## Contributions
 
 Although we don't plan on developing SoberUp further, we welcome contributions from the community. Here are some possible ideas:
