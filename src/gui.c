@@ -73,6 +73,7 @@ static void load_top_bar() {
     beer_layer = bitmap_layer_create(GRect(width - beer_width, 0, beer_width, beer_height));
     bitmap_layer_set_bitmap(beer_layer, menu_icon_beer);
     bitmap_layer_set_alignment(beer_layer, GAlignCenter);
+    bitmap_layer_set_compositing_mode(beer_layer, GCompOpSet);
 
     drink_counter_text_layer = text_layer_create(GRect(width - beer_width - 32, 4, 28, 38));
     text_layer_set_font(drink_counter_text_layer, fonts_get_system_font(FONT_KEY_GOTHIC_18));
